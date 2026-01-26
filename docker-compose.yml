@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: weaver-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-weaver}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-weaver_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-weaver}
+    ports:
+      - "5432:5432"
+    volumes:
+      - weaver_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-weaver}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  weaver_postgres_data:
