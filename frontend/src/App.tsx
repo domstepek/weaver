@@ -1,25 +1,27 @@
-import React, { useState, useCallback } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { LoginPage } from './components/Auth/LoginPage';
-import { ProtectedRoute } from './components/Auth/ProtectedRoute';
-import { Header } from './components/Header/Header';
-import { ChatPanel } from './components/Chat/ChatPanel';
-import { GraphView } from './components/Graph/GraphView';
-import { NodeList } from './components/Sidebar/NodeList';
-import { ContextControl } from './components/Sidebar/ContextControl';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useCallback, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import {
-  nodesApi,
+  Conversation,
   conversationsApi,
-  Message,
+  type Message,
   Node,
   NodeWithReferences,
-  Conversation,
+  nodesApi,
 } from './api/client';
+import { LoginPage } from './components/Auth/LoginPage';
+import { ProtectedRoute } from './components/Auth/ProtectedRoute';
+import { ChatPanel } from './components/Chat/ChatPanel';
+import { GraphView } from './components/Graph/GraphView';
+import { Header } from './components/Header/Header';
+import { ContextControl } from './components/Sidebar/ContextControl';
+import { NodeList } from './components/Sidebar/NodeList';
 
 function Dashboard() {
   const queryClient = useQueryClient();
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    string | null
+  >(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedNodeRefs, setSelectedNodeRefs] = useState<string[]>([]);
   const [useOnlyExplicit, setUseOnlyExplicit] = useState(false);
@@ -43,7 +45,9 @@ function Dashboard() {
   const { data: selectedConversation } = useQuery({
     queryKey: ['conversation', selectedConversationId],
     queryFn: () =>
-      selectedConversationId ? conversationsApi.get(selectedConversationId) : null,
+      selectedConversationId
+        ? conversationsApi.get(selectedConversationId)
+        : null,
     enabled: !!selectedConversationId,
   });
 
@@ -87,11 +91,18 @@ function Dashboard() {
 
   // Update node mutation (for pinning)
   const updateNodeMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof nodesApi.update>[1] }) =>
-      nodesApi.update(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof nodesApi.update>[1];
+    }) => nodesApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
-      queryClient.invalidateQueries({ queryKey: ['conversation', selectedConversationId] });
+      queryClient.invalidateQueries({
+        queryKey: ['conversation', selectedConversationId],
+      });
     },
   });
 
@@ -136,13 +147,20 @@ function Dashboard() {
           {/* Conversations */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-700">Conversations</h2>
+              <h2 className="text-sm font-semibold text-gray-700">
+                Conversations
+              </h2>
               <button
                 onClick={handleNewConversation}
                 className="p-1 text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded"
                 title="New conversation"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -159,9 +177,10 @@ function Dashboard() {
                   key={conv.id}
                   className={`
                     group flex items-center justify-between px-2 py-1.5 rounded cursor-pointer
-                    ${conv.id === selectedConversationId
-                      ? 'bg-primary-100 text-primary-900'
-                      : 'hover:bg-gray-100'
+                    ${
+                      conv.id === selectedConversationId
+                        ? 'bg-primary-100 text-primary-900'
+                        : 'hover:bg-gray-100'
                     }
                   `}
                   onClick={() => setSelectedConversationId(conv.id)}
@@ -174,7 +193,12 @@ function Dashboard() {
                     }}
                     className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500"
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"

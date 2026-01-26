@@ -1,5 +1,5 @@
 import React from 'react';
-import { Node } from '@/api/client';
+import type { Node } from '@/api/client';
 
 interface NodeListProps {
   nodes: Node[];
@@ -73,7 +73,12 @@ interface NodeListItemProps {
   onDelete: () => void;
 }
 
-function NodeListItem({ node, isSelected, onClick, onDelete }: NodeListItemProps) {
+function NodeListItem({
+  node,
+  isSelected,
+  onClick,
+  onDelete,
+}: NodeListItemProps) {
   const displayName = node.name || `Node-${node.id.slice(0, 8)}`;
   const truncatedContent =
     node.content.length > 50 ? node.content.slice(0, 50) + '...' : node.content;
@@ -87,7 +92,9 @@ function NodeListItem({ node, isSelected, onClick, onDelete }: NodeListItemProps
       onClick={onClick}
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium truncate flex-1">{displayName}</span>
+        <span className="text-sm font-medium truncate flex-1">
+          {displayName}
+        </span>
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -96,7 +103,12 @@ function NodeListItem({ node, isSelected, onClick, onDelete }: NodeListItemProps
           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all"
           title="Delete node"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

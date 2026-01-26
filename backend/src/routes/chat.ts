@@ -1,20 +1,20 @@
-import { Router, Request, Response } from 'express';
+import { and, asc, eq, inArray } from 'drizzle-orm';
+import { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
-import { eq, and, asc, inArray } from 'drizzle-orm';
 import {
-  db,
-  conversations,
   conversationNodes,
-  nodes,
+  conversations,
+  db,
   nodeReferences,
+  nodes,
 } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import {
-  generateEmbedding,
+  chat,
   findSimilarNodes,
   formatNodesAsContext,
+  generateEmbedding,
   parseNodeReferences,
-  chat,
 } from '../services/ai.js';
 
 const router = Router();
@@ -40,7 +40,12 @@ router.post('/', async (req: Request, res: Response) => {
     const conversation = await db
       .select()
       .from(conversations)
-      .where(and(eq(conversations.id, body.conversationId), eq(conversations.userId, userId)))
+      .where(
+        and(
+          eq(conversations.id, body.conversationId),
+          eq(conversations.userId, userId),
+        ),
+      )
       .limit(1);
 
     if (conversation.length === 0) {
@@ -60,9 +65,10 @@ router.post('/', async (req: Request, res: Response) => {
       .where(eq(conversationNodes.conversationId, body.conversationId))
       .orderBy(asc(conversationNodes.position));
 
-    const nextPosition = existingMessages.length > 0
-      ? Math.max(...existingMessages.map((m) => m.position)) + 1
-      : 0;
+    const nextPosition =
+      existingMessages.length > 0
+        ? Math.max(...existingMessages.map((m) => m.position)) + 1
+        : 0;
 
     // Create node for user message
     const userEmbedding = await generateEmbedding(body.message);
@@ -84,14 +90,16 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     // Gather context nodes
-    const contextNodes: typeof nodes.$inferSelect[] = [];
+    const contextNodes: (typeof nodes.$inferSelect)[] = [];
 
     // Fetch explicit refs (verify ownership)
     if (body.explicitRefs.length > 0) {
       const explicitNodes = await db
         .select()
         .from(nodes)
-        .where(and(eq(nodes.userId, userId), inArray(nodes.id, body.explicitRefs)));
+        .where(
+          and(eq(nodes.userId, userId), inArray(nodes.id, body.explicitRefs)),
+        );
       contextNodes.push(...explicitNodes);
     }
 
@@ -101,7 +109,7 @@ router.post('/', async (req: Request, res: Response) => {
         userId,
         userEmbedding,
         5,
-        userNode[0].id
+        userNode[0].id,
       );
       // Add similar nodes that aren't already in context
       const existingIds = new Set(contextNodes.map((n) => n.id));
@@ -151,7 +159,9 @@ router.post('/', async (req: Request, res: Response) => {
       const validRefs = await db
         .select()
         .from(nodes)
-        .where(and(eq(nodes.userId, userId), inArray(nodes.id, referencedNodeIds)));
+        .where(
+          and(eq(nodes.userId, userId), inArray(nodes.id, referencedNodeIds)),
+        );
 
       for (const ref of validRefs) {
         await db.insert(nodeReferences).values({
@@ -194,12 +204,15 @@ router.post('/', async (req: Request, res: Response) => {
       contextUsed: contextNodes.map((n) => ({
         id: n.id,
         name: n.name,
-        content: n.content.substring(0, 200) + (n.content.length > 200 ? '...' : ''),
+        content:
+          n.content.substring(0, 200) + (n.content.length > 200 ? '...' : ''),
       })),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Validation error', details: error.errors });
+      res
+        .status(400)
+        .json({ error: 'Validation error', details: error.errors });
       return;
     }
     console.error('Chat error:', error);

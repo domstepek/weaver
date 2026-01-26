@@ -1,18 +1,18 @@
-import React, { useCallback, useMemo } from 'react';
 import {
-  ReactFlow,
-  Node,
-  Edge,
-  Controls,
   Background,
-  useNodesState,
-  useEdgesState,
   BackgroundVariant,
-  NodeTypes,
+  Controls,
+  type Edge,
+  type Node,
+  type NodeTypes,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from '@xyflow/react';
+import React, { useCallback, useMemo } from 'react';
 import '@xyflow/react/dist/style.css';
-import { IdeaNode, IdeaNodeData } from './IdeaNode';
-import { NodeWithReferences, Node as ApiNode } from '@/api/client';
+import type { Node as ApiNode, NodeWithReferences } from '@/api/client';
+import { IdeaNode, type IdeaNodeData } from './IdeaNode';
 
 const nodeTypes: NodeTypes = {
   idea: IdeaNode,
@@ -25,7 +25,10 @@ interface GraphViewProps {
 }
 
 // Simple layout algorithm - position nodes in a grid
-function layoutNodes(nodeList: ApiNode[], selectedNode: NodeWithReferences | null) {
+function layoutNodes(
+  nodeList: ApiNode[],
+  selectedNode: NodeWithReferences | null,
+) {
   const graphNodes: Node<IdeaNodeData>[] = [];
   const graphEdges: Edge[] = [];
 
@@ -89,18 +92,27 @@ function layoutNodes(nodeList: ApiNode[], selectedNode: NodeWithReferences | nul
   return { nodes: graphNodes, edges: graphEdges };
 }
 
-export function GraphView({ nodes, selectedNode, onNodeSelect }: GraphViewProps) {
+export function GraphView({
+  nodes,
+  selectedNode,
+  onNodeSelect,
+}: GraphViewProps) {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => layoutNodes(nodes, selectedNode),
-    [nodes, selectedNode]
+    [nodes, selectedNode],
   );
 
-  const [graphNodes, setGraphNodes, onNodesChange] = useNodesState(initialNodes);
-  const [graphEdges, setGraphEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [graphNodes, setGraphNodes, onNodesChange] =
+    useNodesState(initialNodes);
+  const [graphEdges, setGraphEdges, onEdgesChange] =
+    useEdgesState(initialEdges);
 
   // Update nodes when props change
   React.useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = layoutNodes(nodes, selectedNode);
+    const { nodes: newNodes, edges: newEdges } = layoutNodes(
+      nodes,
+      selectedNode,
+    );
     setGraphNodes(newNodes);
     setGraphEdges(newEdges);
   }, [nodes, selectedNode, setGraphNodes, setGraphEdges]);
@@ -109,7 +121,7 @@ export function GraphView({ nodes, selectedNode, onNodeSelect }: GraphViewProps)
     (_: React.MouseEvent, node: Node) => {
       onNodeSelect(node.id);
     },
-    [onNodeSelect]
+    [onNodeSelect],
   );
 
   if (nodes.length === 0) {
@@ -117,7 +129,9 @@ export function GraphView({ nodes, selectedNode, onNodeSelect }: GraphViewProps)
       <div className="h-full flex items-center justify-center bg-gray-50 text-gray-500">
         <div className="text-center">
           <p className="text-lg mb-2">No nodes yet</p>
-          <p className="text-sm">Send messages and pin them to build your knowledge graph</p>
+          <p className="text-sm">
+            Send messages and pin them to build your knowledge graph
+          </p>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { chatApi, Message, Node } from '@/api/client';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { chatApi, type Message, Node } from '@/api/client';
 import { MessageBubble } from './MessageBubble';
 
 interface ChatPanelProps {
@@ -27,7 +28,9 @@ export function ChatPanel({
   const chatMutation = useMutation({
     mutationFn: chatApi.send,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] });
+      queryClient.invalidateQueries({
+        queryKey: ['conversation', conversationId],
+      });
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
     },
   });
@@ -56,7 +59,9 @@ export function ChatPanel({
       <div className="flex-1 flex items-center justify-center text-gray-500">
         <div className="text-center">
           <p className="text-lg mb-2">No conversation selected</p>
-          <p className="text-sm">Create or select a conversation to start chatting</p>
+          <p className="text-sm">
+            Create or select a conversation to start chatting
+          </p>
         </div>
       </div>
     );
@@ -86,7 +91,8 @@ export function ChatPanel({
       {/* Context indicator */}
       {selectedNodeRefs.length > 0 && (
         <div className="px-4 py-2 bg-primary-50 border-t border-primary-100 text-sm text-primary-700">
-          {selectedNodeRefs.length} node{selectedNodeRefs.length > 1 ? 's' : ''} selected as context
+          {selectedNodeRefs.length} node{selectedNodeRefs.length > 1 ? 's' : ''}{' '}
+          selected as context
           {useOnlyExplicit && ' (explicit only)'}
         </div>
       )}

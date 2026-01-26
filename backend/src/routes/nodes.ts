@@ -1,9 +1,9 @@
-import { Router, Request, Response } from 'express';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
-import { eq, and, or, desc, sql, ilike } from 'drizzle-orm';
-import { db, nodes, nodeReferences, Node } from '../db/index.js';
+import { db, Node, nodeReferences, nodes } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
-import { generateEmbedding, findSimilarNodes } from '../services/ai.js';
+import { findSimilarNodes, generateEmbedding } from '../services/ai.js';
 
 const router = Router();
 
@@ -51,7 +51,9 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(newNode[0]);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Validation error', details: error.errors });
+      res
+        .status(400)
+        .json({ error: 'Validation error', details: error.errors });
       return;
     }
     console.error('Create node error:', error);
@@ -65,7 +67,7 @@ router.get('/', async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { pinned, search, limit = '50', offset = '0' } = req.query;
 
-    let query = db
+    const query = db
       .select({
         id: nodes.id,
         content: nodes.content,
@@ -79,8 +81,8 @@ router.get('/', async (req: Request, res: Response) => {
         and(
           eq(nodes.userId, userId),
           pinned === 'true' ? eq(nodes.isPinned, true) : undefined,
-          search ? ilike(nodes.content, `%${search}%`) : undefined
-        )
+          search ? ilike(nodes.content, `%${search}%`) : undefined,
+        ),
       )
       .orderBy(desc(nodes.updatedAt))
       .limit(parseInt(limit as string))
@@ -191,13 +193,19 @@ router.patch('/:id', async (req: Request, res: Response) => {
       updateData.isPinned = body.isPinned;
     }
 
-    const updated = await db.update(nodes).set(updateData).where(eq(nodes.id, id)).returning();
+    const updated = await db
+      .update(nodes)
+      .set(updateData)
+      .where(eq(nodes.id, id))
+      .returning();
 
     const { embedding, ...nodeWithoutEmbedding } = updated[0];
     res.json(nodeWithoutEmbedding);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Validation error', details: error.errors });
+      res
+        .status(400)
+        .json({ error: 'Validation error', details: error.errors });
       return;
     }
     console.error('Update node error:', error);
@@ -248,12 +256,17 @@ router.get('/:id/related', async (req: Request, res: Response) => {
 
     // Find semantically similar nodes
     if (node[0].embedding) {
-      const similar = await findSimilarNodes(userId, node[0].embedding as number[], 10, id);
+      const similar = await findSimilarNodes(
+        userId,
+        node[0].embedding as number[],
+        10,
+        id,
+      );
       res.json(
         similar.map((n) => {
           const { embedding, ...rest } = n;
           return rest;
-        })
+        }),
       );
     } else {
       res.json([]);
@@ -277,11 +290,13 @@ router.get('/search', async (req: Request, res: Response) => {
       similar.map((n) => {
         const { embedding, ...rest } = n;
         return rest;
-      })
+      }),
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Validation error', details: error.errors });
+      res
+        .status(400)
+        .json({ error: 'Validation error', details: error.errors });
       return;
     }
     console.error('Search nodes error:', error);

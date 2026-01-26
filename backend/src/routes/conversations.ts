@@ -1,7 +1,7 @@
-import { Router, Request, Response } from 'express';
+import { and, asc, desc, eq } from 'drizzle-orm';
+import { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
-import { eq, and, desc, asc } from 'drizzle-orm';
-import { db, conversations, conversationNodes, nodes } from '../db/index.js';
+import { conversationNodes, conversations, db, nodes } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
@@ -35,7 +35,9 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(newConversation[0]);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Validation error', details: error.errors });
+      res
+        .status(400)
+        .json({ error: 'Validation error', details: error.errors });
       return;
     }
     console.error('Create conversation error:', error);
@@ -132,7 +134,9 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json(updated[0]);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Validation error', details: error.errors });
+      res
+        .status(400)
+        .json({ error: 'Validation error', details: error.errors });
       return;
     }
     console.error('Update conversation error:', error);

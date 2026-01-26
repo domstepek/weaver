@@ -66,7 +66,7 @@ export interface ChatResponse {
 export class ApiError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -74,10 +74,7 @@ export class ApiError extends Error {
 }
 
 // Base fetch wrapper
-async function apiFetch<T>(
-  url: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(url, {
     ...options,
     credentials: 'include',
@@ -95,7 +92,9 @@ async function apiFetch<T>(
       }
       throw new ApiError(401, 'Unauthorized');
     }
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Unknown error' }));
     throw new ApiError(response.status, error.error || 'Unknown error');
   }
 
@@ -111,9 +110,15 @@ export const authApi = {
 
 // Nodes API
 export const nodesApi = {
-  list: (params?: { pinned?: boolean; search?: string; limit?: number; offset?: number }) => {
+  list: (params?: {
+    pinned?: boolean;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
     const searchParams = new URLSearchParams();
-    if (params?.pinned !== undefined) searchParams.set('pinned', String(params.pinned));
+    if (params?.pinned !== undefined)
+      searchParams.set('pinned', String(params.pinned));
     if (params?.search) searchParams.set('search', params.search);
     if (params?.limit) searchParams.set('limit', String(params.limit));
     if (params?.offset) searchParams.set('offset', String(params.offset));
@@ -129,7 +134,10 @@ export const nodesApi = {
       body: JSON.stringify(data),
     }),
 
-  update: (id: string, data: { content?: string; name?: string | null; isPinned?: boolean }) =>
+  update: (
+    id: string,
+    data: { content?: string; name?: string | null; isPinned?: boolean },
+  ) =>
     apiFetch<Node>(`/api/nodes/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -154,10 +162,13 @@ export const conversationsApi = {
     if (params?.limit) searchParams.set('limit', String(params.limit));
     if (params?.offset) searchParams.set('offset', String(params.offset));
     const query = searchParams.toString();
-    return apiFetch<Conversation[]>(`/api/conversations${query ? `?${query}` : ''}`);
+    return apiFetch<Conversation[]>(
+      `/api/conversations${query ? `?${query}` : ''}`,
+    );
   },
 
-  get: (id: string) => apiFetch<ConversationWithMessages>(`/api/conversations/${id}`),
+  get: (id: string) =>
+    apiFetch<ConversationWithMessages>(`/api/conversations/${id}`),
 
   create: (data: { title: string }) =>
     apiFetch<Conversation>('/api/conversations', {
@@ -172,7 +183,9 @@ export const conversationsApi = {
     }),
 
   delete: (id: string) =>
-    apiFetch<{ success: boolean }>(`/api/conversations/${id}`, { method: 'DELETE' }),
+    apiFetch<{ success: boolean }>(`/api/conversations/${id}`, {
+      method: 'DELETE',
+    }),
 };
 
 // Chat API

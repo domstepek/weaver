@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { db, nodes, Node } from '../db/index.js';
-import { eq, and, ne, sql } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
+import { db, type Node, nodes } from '../db/index.js';
 
 const anthropic = new Anthropic();
 
@@ -26,7 +26,9 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   }
 
   // Normalize the embedding
-  const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+  const magnitude = Math.sqrt(
+    embedding.reduce((sum, val) => sum + val * val, 0),
+  );
   if (magnitude > 0) {
     for (let i = 0; i < embedding.length; i++) {
       embedding[i] /= magnitude;
@@ -41,19 +43,19 @@ export async function findSimilarNodes(
   userId: string,
   embedding: number[],
   limit: number = 5,
-  excludeNodeId?: string
+  excludeNodeId?: string,
 ): Promise<Node[]> {
   const embeddingStr = `[${embedding.join(',')}]`;
 
-  let query = db
+  const query = db
     .select()
     .from(nodes)
     .where(
       and(
         eq(nodes.userId, userId),
         sql`${nodes.embedding} IS NOT NULL`,
-        excludeNodeId ? ne(nodes.id, excludeNodeId) : sql`true`
-      )
+        excludeNodeId ? ne(nodes.id, excludeNodeId) : sql`true`,
+      ),
     )
     .orderBy(sql`${nodes.embedding} <=> ${embeddingStr}::vector`)
     .limit(limit);
@@ -91,7 +93,7 @@ export function parseNodeReferences(text: string): string[] {
 // Chat with Claude
 export async function chat(
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
-  context: string
+  context: string,
 ): Promise<string> {
   const systemPrompt = `You are a helpful AI assistant integrated into Weaver, a knowledge graph-based chat application.
 Users can save important ideas as nodes in their personal knowledge graph and reference them across conversations.

@@ -10,9 +10,14 @@
     "db:migrate": "pnpm --filter backend db:migrate",
     "db:studio": "pnpm --filter backend db:studio",
     "b": "pnpm --filter backend",
-    "f": "pnpm --filter frontend"
+    "f": "pnpm --filter frontend",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.12",
     "concurrently": "^8.2.2"
   }
 }

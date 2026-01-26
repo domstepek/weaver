@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { eq, and, gt } from 'drizzle-orm';
-import { db, sessions, users, User } from '../db/index.js';
+import { and, eq, gt } from 'drizzle-orm';
+import type { NextFunction, Request, Response } from 'express';
+import { db, sessions, type User, users } from '../db/index.js';
 
 declare global {
   namespace Express {
@@ -11,7 +11,11 @@ declare global {
   }
 }
 
-export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const sessionId = req.cookies?.session;
 
   if (!sessionId) {
@@ -27,7 +31,9 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       })
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
-      .where(and(eq(sessions.id, sessionId), gt(sessions.expiresAt, new Date())))
+      .where(
+        and(eq(sessions.id, sessionId), gt(sessions.expiresAt, new Date())),
+      )
       .limit(1);
 
     if (result.length === 0) {

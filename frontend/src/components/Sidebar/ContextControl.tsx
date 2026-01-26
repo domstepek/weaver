@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Node } from '@/api/client';
+import type { Node } from '@/api/client';
 
 interface ContextControlProps {
   nodes: Node[];
@@ -23,7 +23,7 @@ export function ContextControl({
     ? nodes.filter(
         (n) =>
           n.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          n.content.toLowerCase().includes(searchQuery.toLowerCase())
+          n.content.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : pinnedNodes;
 
@@ -118,7 +118,8 @@ export function ContextControl({
       {/* Selected count */}
       {selectedRefs.length > 0 && (
         <p className="text-xs text-primary-600">
-          {selectedRefs.length} node{selectedRefs.length > 1 ? 's' : ''} selected
+          {selectedRefs.length} node{selectedRefs.length > 1 ? 's' : ''}{' '}
+          selected
         </p>
       )}
     </div>

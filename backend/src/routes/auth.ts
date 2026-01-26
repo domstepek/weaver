@@ -1,18 +1,23 @@
-import { Router, Request, Response } from 'express';
 import { Google } from 'arctic';
-import { generateState, generateCodeVerifier } from 'oslo/oauth2';
 import { eq } from 'drizzle-orm';
-import { db, users, sessions } from '../db/index.js';
+import { type Request, type Response, Router } from 'express';
+import { generateCodeVerifier, generateState } from 'oslo/oauth2';
+import { db, sessions, users } from '../db/index.js';
 
 const router = Router();
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID || '';
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
 const googleRedirectUri =
-  process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/auth/google/callback';
+  process.env.GOOGLE_REDIRECT_URI ||
+  'http://localhost:3000/auth/google/callback';
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-const google = new Google(googleClientId, googleClientSecret, googleRedirectUri);
+const google = new Google(
+  googleClientId,
+  googleClientSecret,
+  googleRedirectUri,
+);
 
 // Session duration: 30 days
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -22,7 +27,11 @@ router.get('/google', async (req: Request, res: Response) => {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
 
-  const url = google.createAuthorizationURL(state, codeVerifier, ['openid', 'email', 'profile']);
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    'openid',
+    'email',
+    'profile',
+  ]);
 
   // Store state and verifier in cookies for validation
   res.cookie('oauth_state', state, {
@@ -64,15 +73,21 @@ router.get('/google/callback', async (req: Request, res: Response) => {
 
   try {
     // Exchange code for tokens
-    const tokens = await google.validateAuthorizationCode(code as string, codeVerifier);
+    const tokens = await google.validateAuthorizationCode(
+      code as string,
+      codeVerifier,
+    );
     const accessToken = tokens.accessToken();
 
     // Fetch user info from Google
-    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const userInfoResponse = await fetch(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    });
+    );
 
     if (!userInfoResponse.ok) {
       throw new Error('Failed to fetch user info from Google');
@@ -182,7 +197,11 @@ router.get('/me', async (req: Request, res: Response) => {
       return;
     }
 
-    const session = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
+    const session = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.id, sessionId))
+      .limit(1);
 
     if (session.length === 0 || session[0].expiresAt < new Date()) {
       res.clearCookie('session');

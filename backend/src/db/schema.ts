@@ -1,18 +1,21 @@
+import { relations } from 'drizzle-orm';
 import {
-  pgTable,
-  uuid,
-  text,
-  timestamp,
   boolean,
+  index,
   integer,
   pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
   vector,
-  index,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
 
 // Enums
-export const referenceTypeEnum = pgEnum('reference_type', ['explicit', 'implicit']);
+export const referenceTypeEnum = pgEnum('reference_type', [
+  'explicit',
+  'implicit',
+]);
 export const roleEnum = pgEnum('role', ['user', 'assistant']);
 
 // Users table
@@ -53,8 +56,11 @@ export const nodes = pgTable(
   },
   (table) => [
     index('nodes_user_id_idx').on(table.userId),
-    index('nodes_embedding_idx').using('hnsw', table.embedding.op('vector_cosine_ops')),
-  ]
+    index('nodes_embedding_idx').using(
+      'hnsw',
+      table.embedding.op('vector_cosine_ops'),
+    ),
+  ],
 );
 
 // Node references - edges between nodes
@@ -74,7 +80,7 @@ export const nodeReferences = pgTable(
   (table) => [
     index('node_references_from_idx').on(table.fromNodeId),
     index('node_references_to_idx').on(table.toNodeId),
-  ]
+  ],
 );
 
 // Conversations table
@@ -89,7 +95,7 @@ export const conversations = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [index('conversations_user_id_idx').on(table.userId)]
+  (table) => [index('conversations_user_id_idx').on(table.userId)],
 );
 
 // Conversation nodes - join table for messages in conversations
@@ -109,8 +115,11 @@ export const conversationNodes = pgTable(
   },
   (table) => [
     index('conversation_nodes_conversation_idx').on(table.conversationId),
-    index('conversation_nodes_position_idx').on(table.conversationId, table.position),
-  ]
+    index('conversation_nodes_position_idx').on(
+      table.conversationId,
+      table.position,
+    ),
+  ],
 );
 
 // Relations
@@ -150,24 +159,30 @@ export const nodeReferencesRelations = relations(nodeReferences, ({ one }) => ({
   }),
 }));
 
-export const conversationsRelations = relations(conversations, ({ one, many }) => ({
-  user: one(users, {
-    fields: [conversations.userId],
-    references: [users.id],
+export const conversationsRelations = relations(
+  conversations,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [conversations.userId],
+      references: [users.id],
+    }),
+    conversationNodes: many(conversationNodes),
   }),
-  conversationNodes: many(conversationNodes),
-}));
+);
 
-export const conversationNodesRelations = relations(conversationNodes, ({ one }) => ({
-  conversation: one(conversations, {
-    fields: [conversationNodes.conversationId],
-    references: [conversations.id],
+export const conversationNodesRelations = relations(
+  conversationNodes,
+  ({ one }) => ({
+    conversation: one(conversations, {
+      fields: [conversationNodes.conversationId],
+      references: [conversations.id],
+    }),
+    node: one(nodes, {
+      fields: [conversationNodes.nodeId],
+      references: [nodes.id],
+    }),
   }),
-  node: one(nodes, {
-    fields: [conversationNodes.nodeId],
-    references: [nodes.id],
-  }),
-}));
+);
 
 // Type exports
 export type User = typeof users.$inferSelect;

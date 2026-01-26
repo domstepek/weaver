@@ -1,5 +1,5 @@
-import React from 'react';
-import { Message } from '@/api/client';
+import type React from 'react';
+import type { Message } from '@/api/client';
 
 interface MessageBubbleProps {
   message: Message;
@@ -7,7 +7,11 @@ interface MessageBubbleProps {
   onNodeClick: (nodeId: string) => void;
 }
 
-export function MessageBubble({ message, onPinClick, onNodeClick }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  onPinClick,
+  onNodeClick,
+}: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   // Parse and render content with node references as clickable links
@@ -34,7 +38,7 @@ export function MessageBubble({ message, onPinClick, onNodeClick }: MessageBubbl
           className="text-primary-600 hover:text-primary-800 underline"
         >
           {nodeName}
-        </button>
+        </button>,
       );
 
       lastIndex = match.index + match[0].length;
@@ -52,9 +56,7 @@ export function MessageBubble({ message, onPinClick, onNodeClick }: MessageBubbl
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`max-w-[80%] rounded-lg px-4 py-3 ${
-          isUser
-            ? 'bg-primary-600 text-white'
-            : 'bg-gray-100 text-gray-900'
+          isUser ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-900'
         }`}
       >
         <div className="message-content whitespace-pre-wrap break-words">

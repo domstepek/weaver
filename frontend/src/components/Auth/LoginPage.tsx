@@ -20,11 +20,15 @@ export function LoginPage() {
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error === 'missing_params' && 'Missing authentication parameters.'}
-              {error === 'invalid_state' && 'Invalid authentication state. Please try again.'}
-              {error === 'oauth_failed' && 'Authentication failed. Please try again.'}
-              {!['missing_params', 'invalid_state', 'oauth_failed'].includes(error) &&
-                'An error occurred during sign-in.'}
+              {error === 'missing_params' &&
+                'Missing authentication parameters.'}
+              {error === 'invalid_state' &&
+                'Invalid authentication state. Please try again.'}
+              {error === 'oauth_failed' &&
+                'Authentication failed. Please try again.'}
+              {!['missing_params', 'invalid_state', 'oauth_failed'].includes(
+                error,
+              ) && 'An error occurred during sign-in.'}
             </div>
           )}
 
