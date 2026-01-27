@@ -11,7 +11,11 @@ import {
 } from '@xyflow/react';
 import React, { useCallback, useMemo } from 'react';
 import '@xyflow/react/dist/style.css';
-import type { Node as ApiNode, NodeWithReferences } from '@/api/client';
+import type {
+  Node as ApiNode,
+  NodeReference,
+  NodeWithReferences,
+} from '@/api/client';
 import { IdeaNode, type IdeaNodeData } from './IdeaNode';
 
 const nodeTypes: NodeTypes = {
@@ -20,6 +24,7 @@ const nodeTypes: NodeTypes = {
 
 interface GraphViewProps {
   nodes: ApiNode[];
+  references: NodeReference[];
   selectedNode: NodeWithReferences | null;
   onNodeSelect: (nodeId: string) => void;
 }
@@ -27,7 +32,8 @@ interface GraphViewProps {
 // Simple layout algorithm - position nodes in a grid
 function layoutNodes(
   nodeList: ApiNode[],
-  selectedNode: NodeWithReferences | null,
+  references: NodeReference[],
+  _selectedNode: NodeWithReferences | null,
 ) {
   const graphNodes: Node<IdeaNodeData>[] = [];
   const graphEdges: Edge[] = [];
@@ -56,50 +62,34 @@ function layoutNodes(
     });
   });
 
-  // Add edges from selected node if available
-  if (selectedNode) {
-    // Outgoing references
-    selectedNode.outgoingReferences.forEach((ref) => {
-      if (nodeIds.has(ref.toNodeId)) {
-        graphEdges.push({
-          id: `edge-${selectedNode.id}-${ref.toNodeId}`,
-          source: selectedNode.id,
-          target: ref.toNodeId,
-          animated: ref.referenceType === 'implicit',
-          style: {
-            stroke: ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8',
-          },
-        });
-      }
-    });
-
-    // Incoming references
-    selectedNode.incomingReferences.forEach((ref) => {
-      if (nodeIds.has(ref.fromNodeId)) {
-        graphEdges.push({
-          id: `edge-${ref.fromNodeId}-${selectedNode.id}`,
-          source: ref.fromNodeId,
-          target: selectedNode.id,
-          animated: ref.referenceType === 'implicit',
-          style: {
-            stroke: ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8',
-          },
-        });
-      }
-    });
-  }
+  // Add all edges from references
+  references.forEach((ref) => {
+    // Only add edge if both nodes are in the current node list
+    if (nodeIds.has(ref.fromNodeId) && nodeIds.has(ref.toNodeId)) {
+      graphEdges.push({
+        id: ref.id,
+        source: ref.fromNodeId,
+        target: ref.toNodeId,
+        animated: ref.referenceType === 'implicit',
+        style: {
+          stroke: ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8',
+        },
+      });
+    }
+  });
 
   return { nodes: graphNodes, edges: graphEdges };
 }
 
 export function GraphView({
   nodes,
+  references,
   selectedNode,
   onNodeSelect,
 }: GraphViewProps) {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => layoutNodes(nodes, selectedNode),
-    [nodes, selectedNode],
+    () => layoutNodes(nodes, references, selectedNode),
+    [nodes, references, selectedNode],
   );
 
   const [graphNodes, setGraphNodes, onNodesChange] =
@@ -111,11 +101,12 @@ export function GraphView({
   React.useEffect(() => {
     const { nodes: newNodes, edges: newEdges } = layoutNodes(
       nodes,
+      references,
       selectedNode,
     );
     setGraphNodes(newNodes);
     setGraphEdges(newEdges);
-  }, [nodes, selectedNode, setGraphNodes, setGraphEdges]);
+  }, [nodes, references, selectedNode, setGraphNodes, setGraphEdges]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
@@ -148,6 +139,7 @@ export function GraphView({
       fitView
       minZoom={0.1}
       maxZoom={2}
+      renderer="canvas"
     >
       <Controls />
       <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

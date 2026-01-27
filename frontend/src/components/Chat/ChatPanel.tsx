@@ -32,6 +32,7 @@ export function ChatPanel({
         queryKey: ['conversation', conversationId],
       });
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
+      queryClient.invalidateQueries({ queryKey: ['node-references'] });
     },
   });
 

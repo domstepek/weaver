@@ -28,6 +28,12 @@ function Dashboard() {
     queryFn: () => nodesApi.list({ limit: 100 }),
   });
 
+  // Fetch all node references
+  const { data: nodeReferences = [] } = useQuery({
+    queryKey: ['node-references'],
+    queryFn: () => nodesApi.getAllReferences(),
+  });
+
   // Fetch conversations
   const { data: conversations = [] } = useQuery({
     queryKey: ['conversations'],
@@ -76,6 +82,7 @@ function Dashboard() {
     mutationFn: nodesApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
+      queryClient.invalidateQueries({ queryKey: ['node-references'] });
       if (selectedNodeId) {
         setSelectedNodeId(null);
       }
@@ -93,6 +100,7 @@ function Dashboard() {
     }) => nodesApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
+      queryClient.invalidateQueries({ queryKey: ['node-references'] });
       queryClient.invalidateQueries({
         queryKey: ['conversation', selectedConversationId],
       });
@@ -231,6 +239,7 @@ function Dashboard() {
         <div className="flex-1 bg-gray-100">
           <GraphView
             nodes={nodes}
+            references={nodeReferences}
             selectedNode={selectedNode || null}
             onNodeSelect={handleNodeClick}
           />

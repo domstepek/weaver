@@ -304,4 +304,29 @@ router.get('/search', async (req: Request, res: Response) => {
   }
 });
 
+// Get all node references for the user
+router.get('/references/all', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    // Get all references for nodes belonging to this user
+    const references = await db
+      .select({
+        id: nodeReferences.id,
+        fromNodeId: nodeReferences.fromNodeId,
+        toNodeId: nodeReferences.toNodeId,
+        referenceType: nodeReferences.referenceType,
+        createdAt: nodeReferences.createdAt,
+      })
+      .from(nodeReferences)
+      .innerJoin(nodes, eq(nodeReferences.fromNodeId, nodes.id))
+      .where(eq(nodes.userId, userId));
+
+    res.json(references);
+  } catch (error) {
+    console.error('Get all references error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;
