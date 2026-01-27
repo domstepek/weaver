@@ -50,7 +50,7 @@ export async function requireAuth(
   }
 }
 
-export function optionalAuth(req: Request, res: Response, next: NextFunction) {
+export function optionalAuth(req: Request, _res: Response, next: NextFunction) {
   const sessionId = req.cookies?.session;
 
   if (!sessionId) {

@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Node } from '@/api/client';
 
 interface NodeListProps {
@@ -81,7 +80,7 @@ function NodeListItem({
 }: NodeListItemProps) {
   const displayName = node.name || `Node-${node.id.slice(0, 8)}`;
   const truncatedContent =
-    node.content.length > 50 ? node.content.slice(0, 50) + '...' : node.content;
+    node.content.length > 50 ? `${node.content.slice(0, 50)}...` : node.content;
 
   return (
     <li

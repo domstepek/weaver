@@ -34,7 +34,7 @@ const chatSchema = z.object({
 router.post('/', async (req: Request, res: Response) => {
   try {
     const body = chatSchema.parse(req.body);
-    const userId = req.user!.id;
+    const userId = req.user?.id;
 
     // Verify conversation ownership
     const conversation = await db

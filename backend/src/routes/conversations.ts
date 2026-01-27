@@ -22,7 +22,7 @@ const updateConversationSchema = z.object({
 router.post('/', async (req: Request, res: Response) => {
   try {
     const body = createConversationSchema.parse(req.body);
-    const userId = req.user!.id;
+    const userId = req.user?.id;
 
     const newConversation = await db
       .insert(conversations)
@@ -48,7 +48,7 @@ router.post('/', async (req: Request, res: Response) => {
 // List user's conversations
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { limit = '50', offset = '0' } = req.query;
 
     const result = await db
@@ -56,8 +56,8 @@ router.get('/', async (req: Request, res: Response) => {
       .from(conversations)
       .where(eq(conversations.userId, userId))
       .orderBy(desc(conversations.updatedAt))
-      .limit(parseInt(limit as string))
-      .offset(parseInt(offset as string));
+      .limit(parseInt(limit as string, 10))
+      .offset(parseInt(offset as string, 10));
 
     res.json(result);
   } catch (error) {
@@ -69,7 +69,7 @@ router.get('/', async (req: Request, res: Response) => {
 // Get conversation with messages
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     const conversation = await db
@@ -114,7 +114,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const body = updateConversationSchema.parse(req.body);
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     const updated = await db
@@ -147,7 +147,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // Delete conversation
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     const deleted = await db

@@ -23,7 +23,7 @@ const google = new Google(
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 
 // Redirect to Google OAuth
-router.get('/google', async (req: Request, res: Response) => {
+router.get('/google', async (_req: Request, res: Response) => {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
 

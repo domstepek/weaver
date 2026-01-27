@@ -1,5 +1,5 @@
 import { Handle, type NodeProps, Position } from '@xyflow/react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 export interface IdeaNodeData {
   id: string;
@@ -13,7 +13,7 @@ export const IdeaNode = memo(({ data, selected }: NodeProps<IdeaNodeData>) => {
   const displayName = data.name || `Node-${data.id.slice(0, 8)}`;
   const truncatedContent =
     data.content.length > 150
-      ? data.content.slice(0, 150) + '...'
+      ? `${data.content.slice(0, 150)}...`
       : data.content;
 
   return (
