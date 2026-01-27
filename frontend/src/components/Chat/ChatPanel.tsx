@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { chatApi, type Message, Node } from '@/api/client';
+import { chatApi, type Message } from '@/api/client';
 import { MessageBubble } from './MessageBubble';
 
 interface ChatPanelProps {
@@ -37,7 +37,7 @@ export function ChatPanel({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

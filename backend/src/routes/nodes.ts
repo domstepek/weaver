@@ -1,7 +1,7 @@
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike } from 'drizzle-orm';
 import { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
-import { db, Node, nodeReferences, nodes } from '../db/index.js';
+import { db, nodeReferences, nodes } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import { findSimilarNodes, generateEmbedding } from '../services/ai.js';
 
@@ -32,7 +32,7 @@ const searchSchema = z.object({
 router.post('/', async (req: Request, res: Response) => {
   try {
     const body = createNodeSchema.parse(req.body);
-    const userId = req.user!.id;
+    const userId = req.user?.id;
 
     // Generate embedding for the content
     const embedding = await generateEmbedding(body.content);
@@ -64,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
 // List user's nodes
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { pinned, search, limit = '50', offset = '0' } = req.query;
 
     const query = db
@@ -85,8 +85,8 @@ router.get('/', async (req: Request, res: Response) => {
         ),
       )
       .orderBy(desc(nodes.updatedAt))
-      .limit(parseInt(limit as string))
-      .offset(parseInt(offset as string));
+      .limit(parseInt(limit as string, 10))
+      .offset(parseInt(offset as string, 10));
 
     const result = await query;
     res.json(result);
@@ -99,7 +99,7 @@ router.get('/', async (req: Request, res: Response) => {
 // Get single node with references
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     const node = await db
@@ -155,7 +155,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const body = updateNodeSchema.parse(req.body);
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     // Verify ownership
@@ -216,7 +216,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // Delete node
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     const deleted = await db
@@ -239,7 +239,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // Get related nodes (by references)
 router.get('/:id/related', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     // Verify ownership
@@ -281,7 +281,7 @@ router.get('/:id/related', async (req: Request, res: Response) => {
 router.get('/search', async (req: Request, res: Response) => {
   try {
     const { query, limit } = searchSchema.parse(req.query);
-    const userId = req.user!.id;
+    const userId = req.user?.id;
 
     const queryEmbedding = await generateEmbedding(query);
     const similar = await findSimilarNodes(userId, queryEmbedding, limit);

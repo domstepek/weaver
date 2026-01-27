@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { createContext, type ReactNode, useContext } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 import { authApi, type User } from '@/api/client';
 
 interface AuthContextType {

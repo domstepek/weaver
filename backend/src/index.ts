@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
@@ -36,9 +36,9 @@ app.use('/api/chat', chatRoutes);
 app.use(
   (
     err: Error,
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
-    next: express.NextFunction,
+    _next: express.NextFunction,
   ) => {
     console.error('Unhandled error:', err);
     res.status(500).json({ error: 'Internal server error' });

@@ -81,10 +81,11 @@ export function formatNodesAsContext(nodeList: Node[]): string {
 export function parseNodeReferences(text: string): string[] {
   const regex = /\[([^\]]+)\]\(([a-f0-9-]{36})\)/g;
   const nodeIds: string[] = [];
-  let match;
+  let match = regex.exec(text);
 
-  while ((match = regex.exec(text)) !== null) {
+  while (match !== null) {
     nodeIds.push(match[2]);
+    match = regex.exec(text);
   }
 
   return [...new Set(nodeIds)];
@@ -98,7 +99,7 @@ export async function chat(
   const systemPrompt = `You are a helpful AI assistant integrated into Weaver, a knowledge graph-based chat application.
 Users can save important ideas as nodes in their personal knowledge graph and reference them across conversations.
 
-${context ? context + '\n\n' : ''}When referring to nodes from the user's knowledge graph, use the format [NodeName](nodeId) so the references can be linked in the UI.
+${context ? `${context}\n\n` : ''}When referring to nodes from the user's knowledge graph, use the format [NodeName](nodeId) so the references can be linked in the UI.
 
 Help users explore their ideas, make connections between concepts, and build upon their existing knowledge. Be concise but thorough.`;
 

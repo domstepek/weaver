@@ -1,14 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import {
-  Conversation,
-  conversationsApi,
-  type Message,
-  Node,
-  NodeWithReferences,
-  nodesApi,
-} from './api/client';
+import { conversationsApi, type Message, nodesApi } from './api/client';
 import { LoginPage } from './components/Auth/LoginPage';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { ChatPanel } from './components/Chat/ChatPanel';

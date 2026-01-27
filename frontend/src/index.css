@@ -3,60 +3,54 @@
 @tailwind utilities;
 
 body {
-  margin: 0;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    sans-serif;
+	margin: 0;
+	font-family:
+		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+		Cantarell, sans-serif;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+	width: 8px;
+	height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+	background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+	background: #c1c1c1;
+	border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+	background: #a1a1a1;
 }
 
 /* React Flow overrides */
 .react-flow__node {
-  padding: 0;
-  border-radius: 8px;
-  border: none;
+	padding: 0;
+	border-radius: 8px;
+	border: none;
 }
 
 .react-flow__edge-path {
-  stroke: #94a3b8;
-  stroke-width: 2;
+	stroke: #94a3b8;
+	stroke-width: 2;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #0ea5e9;
+	stroke: #0ea5e9;
 }
 
 /* Message bubble link styles */
 .message-content a {
-  color: #0ea5e9;
-  text-decoration: underline;
-  cursor: pointer;
+	color: #0ea5e9;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 .message-content a:hover {
-  color: #0284c7;
+	color: #0284c7;
 }
