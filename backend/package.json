@@ -9,7 +9,10 @@
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
@@ -28,8 +31,10 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.5",
+    "@vitest/ui": "^4.0.18",
     "drizzle-kit": "^0.30.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.0.18"
   }
 }
