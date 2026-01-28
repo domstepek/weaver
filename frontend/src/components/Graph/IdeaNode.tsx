@@ -1,7 +1,7 @@
 import { Handle, type NodeProps, Position } from '@xyflow/react';
 import { memo } from 'react';
 
-export interface IdeaNodeData {
+export interface IdeaNodeData extends Record<string, unknown> {
   id: string;
   content: string;
   name: string | null;
@@ -9,12 +9,13 @@ export interface IdeaNodeData {
   selected?: boolean;
 }
 
-export const IdeaNode = memo(({ data, selected }: NodeProps<IdeaNodeData>) => {
-  const displayName = data.name || `Node-${data.id.slice(0, 8)}`;
+export const IdeaNode = memo(({ data, selected }: NodeProps) => {
+  const nodeData = data as IdeaNodeData;
+  const displayName = nodeData.name || `Node-${nodeData.id.slice(0, 8)}`;
   const truncatedContent =
-    data.content.length > 150
-      ? `${data.content.slice(0, 150)}...`
-      : data.content;
+    nodeData.content.length > 150
+      ? `${nodeData.content.slice(0, 150)}...`
+      : nodeData.content;
 
   return (
     <>
@@ -28,14 +29,14 @@ export const IdeaNode = memo(({ data, selected }: NodeProps<IdeaNodeData>) => {
         className={`
           min-w-[200px] max-w-[300px] p-3 rounded-lg shadow-md border-2 transition-all
           ${selected ? 'border-primary-500 shadow-lg' : 'border-gray-200'}
-          ${data.isPinned ? 'bg-yellow-50' : 'bg-white'}
+          ${nodeData.isPinned ? 'bg-yellow-50' : 'bg-white'}
         `}
       >
         <div className="flex items-center justify-between mb-2">
           <span className="font-medium text-gray-900 truncate flex-1">
             {displayName}
           </span>
-          {data.isPinned && (
+          {nodeData.isPinned && (
             <svg
               className="w-4 h-4 text-yellow-500 flex-shrink-0 ml-2"
               fill="currentColor"

@@ -139,7 +139,6 @@ export function GraphView({
       fitView
       minZoom={0.1}
       maxZoom={2}
-      renderer="canvas"
     >
       <Controls />
       <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

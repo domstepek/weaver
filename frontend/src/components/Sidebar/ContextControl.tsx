@@ -1,22 +1,15 @@
-import { useState } from 'react';
+import { useValue } from '@legendapp/state/react';
 import type { Node } from '@/api/client';
+import { searchState$, uiState$ } from '@/stores';
 
 interface ContextControlProps {
   nodes: Node[];
-  selectedRefs: string[];
-  useOnlyExplicit: boolean;
-  onRefsChange: (refs: string[]) => void;
-  onUseOnlyExplicitChange: (value: boolean) => void;
 }
 
-export function ContextControl({
-  nodes,
-  selectedRefs,
-  useOnlyExplicit,
-  onRefsChange,
-  onUseOnlyExplicitChange,
-}: ContextControlProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+export function ContextControl({ nodes }: ContextControlProps) {
+  const searchQuery = useValue(searchState$.query);
+  const selectedRefs = useValue(uiState$.selectedNodeRefs);
+  const useOnlyExplicit = useValue(uiState$.useOnlyExplicit);
 
   const pinnedNodes = nodes.filter((n) => n.isPinned);
   const filteredNodes = searchQuery
@@ -28,15 +21,16 @@ export function ContextControl({
     : pinnedNodes;
 
   const toggleRef = (nodeId: string) => {
-    if (selectedRefs.includes(nodeId)) {
-      onRefsChange(selectedRefs.filter((id) => id !== nodeId));
+    const refs = uiState$.selectedNodeRefs.peek();
+    if (refs.includes(nodeId)) {
+      uiState$.selectedNodeRefs.set(refs.filter((id) => id !== nodeId));
     } else {
-      onRefsChange([...selectedRefs, nodeId]);
+      uiState$.selectedNodeRefs.set([...refs, nodeId]);
     }
   };
 
   const clearRefs = () => {
-    onRefsChange([]);
+    uiState$.selectedNodeRefs.set([]);
   };
 
   return (
@@ -59,7 +53,7 @@ export function ContextControl({
       <input
         type="text"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => searchState$.query.set(e.target.value)}
         placeholder="Search nodes..."
         className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
       />
@@ -69,7 +63,7 @@ export function ContextControl({
         <input
           type="checkbox"
           checked={useOnlyExplicit}
-          onChange={(e) => onUseOnlyExplicitChange(e.target.checked)}
+          onChange={(e) => uiState$.useOnlyExplicit.set(e.target.checked)}
           className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
         />
         <span className="text-sm text-gray-700">Use only selected nodes</span>

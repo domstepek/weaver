@@ -58,6 +58,9 @@ React Query for server state:
 
 ### Session Setup
 ```bash
+# Source shell configuration (required for pnpm to be available)
+source ~/.zshrc
+
 # Set Node.js version (required at the start of each session)
 nvm use 20
 ```

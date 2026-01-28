@@ -12,6 +12,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@legendapp/state": "3.0.0-beta.43",
     "@tanstack/react-query": "^5.64.1",
     "@xyflow/react": "^12.4.3",
     "react": "^18.3.1",

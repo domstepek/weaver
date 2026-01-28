@@ -1,27 +1,26 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useValue } from '@legendapp/state/react';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { chatApi, type Message } from '@/api/client';
+import { chatState$, uiState$ } from '@/stores';
 import { MessageBubble } from './MessageBubble';
 
 interface ChatPanelProps {
-  conversationId: string | null;
   messages: Message[];
-  selectedNodeRefs: string[];
-  useOnlyExplicit: boolean;
   onPinMessage: (message: Message) => void;
   onNodeClick: (nodeId: string) => void;
 }
 
 export function ChatPanel({
-  conversationId,
   messages,
-  selectedNodeRefs,
-  useOnlyExplicit,
   onPinMessage,
   onNodeClick,
 }: ChatPanelProps) {
-  const [input, setInput] = useState('');
+  const input = useValue(chatState$.input);
+  const conversationId = useValue(uiState$.selectedConversationId);
+  const selectedNodeRefs = useValue(uiState$.selectedNodeRefs);
+  const useOnlyExplicit = useValue(uiState$.useOnlyExplicit);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -45,7 +44,7 @@ export function ChatPanel({
     if (!input.trim() || !conversationId || chatMutation.isPending) return;
 
     const message = input.trim();
-    setInput('');
+    chatState$.input.set('');
 
     await chatMutation.mutateAsync({
       conversationId,
@@ -104,7 +103,7 @@ export function ChatPanel({
           <input
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => chatState$.input.set(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             disabled={chatMutation.isPending}
