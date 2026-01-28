@@ -17,6 +17,14 @@ export interface Node {
   updatedAt: string;
 }
 
+export interface NodeReference {
+  id: string;
+  fromNodeId: string;
+  toNodeId: string;
+  referenceType: 'explicit' | 'implicit';
+  createdAt: string;
+}
+
 export interface NodeWithReferences extends Node {
   outgoingReferences: Array<{
     id: string;
@@ -153,6 +161,8 @@ export const nodesApi = {
     if (limit) searchParams.set('limit', String(limit));
     return apiFetch<Node[]>(`/api/nodes/search?${searchParams.toString()}`);
   },
+
+  getAllReferences: () => apiFetch<NodeReference[]>('/api/nodes/references/all'),
 };
 
 // Conversations API

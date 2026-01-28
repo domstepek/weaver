@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useValue } from '@legendapp/state/react';
+import { useCallback } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { conversationsApi, type Message, nodesApi } from './api/client';
 import { LoginPage } from './components/Auth/LoginPage';
@@ -9,23 +10,26 @@ import { GraphView } from './components/Graph/GraphView';
 import { Header } from './components/Header/Header';
 import { ContextControl } from './components/Sidebar/ContextControl';
 import { NodeList } from './components/Sidebar/NodeList';
+import { uiState$ } from './stores';
 
 function Dashboard() {
   const queryClient = useQueryClient();
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    string | null
-  >(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedNodeRefs, setSelectedNodeRefs] = useState<string[]>([]);
-  const [useOnlyExplicit, setUseOnlyExplicit] = useState(false);
-  const [pinModalOpen, setPinModalOpen] = useState(false);
-  const [pinningMessage, setPinningMessage] = useState<Message | null>(null);
-  const [pinName, setPinName] = useState('');
+  const selectedConversationId = useValue(uiState$.selectedConversationId);
+  const selectedNodeId = useValue(uiState$.selectedNodeId);
+  const pinModalOpen = useValue(uiState$.pinModal.open);
+  const pinningMessage = useValue(uiState$.pinModal.message);
+  const pinName = useValue(uiState$.pinModal.name);
 
   // Fetch nodes
   const { data: nodes = [] } = useQuery({
     queryKey: ['nodes'],
     queryFn: () => nodesApi.list({ limit: 100 }),
+  });
+
+  // Fetch all node references
+  const { data: nodeReferences = [] } = useQuery({
+    queryKey: ['node-references'],
+    queryFn: () => nodesApi.getAllReferences(),
   });
 
   // Fetch conversations
@@ -56,7 +60,7 @@ function Dashboard() {
     mutationFn: conversationsApi.create,
     onSuccess: (newConversation) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      setSelectedConversationId(newConversation.id);
+      uiState$.selectedConversationId.set(newConversation.id);
     },
   });
 
@@ -65,8 +69,8 @@ function Dashboard() {
     mutationFn: conversationsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      if (selectedConversationId) {
-        setSelectedConversationId(null);
+      if (uiState$.selectedConversationId.peek()) {
+        uiState$.selectedConversationId.set(null);
       }
     },
   });
@@ -76,8 +80,9 @@ function Dashboard() {
     mutationFn: nodesApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
-      if (selectedNodeId) {
-        setSelectedNodeId(null);
+      queryClient.invalidateQueries({ queryKey: ['node-references'] });
+      if (uiState$.selectedNodeId.peek()) {
+        uiState$.selectedNodeId.set(null);
       }
     },
   });
@@ -93,8 +98,9 @@ function Dashboard() {
     }) => nodesApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nodes'] });
+      queryClient.invalidateQueries({ queryKey: ['node-references'] });
       queryClient.invalidateQueries({
-        queryKey: ['conversation', selectedConversationId],
+        queryKey: ['conversation', uiState$.selectedConversationId.peek()],
       });
     },
   });
@@ -105,29 +111,30 @@ function Dashboard() {
   };
 
   const handlePinMessage = (message: Message) => {
-    setPinningMessage(message);
-    setPinName(message.name || '');
-    setPinModalOpen(true);
+    uiState$.pinModal.set({
+      open: true,
+      message,
+      name: message.name || '',
+    });
   };
 
   const handlePinSubmit = async () => {
-    if (!pinningMessage) return;
+    const msg = uiState$.pinModal.message.peek();
+    if (!msg) return;
 
     await updateNodeMutation.mutateAsync({
-      id: pinningMessage.nodeId,
+      id: msg.nodeId,
       data: {
         isPinned: true,
-        name: pinName || null,
+        name: uiState$.pinModal.name.peek() || null,
       },
     });
 
-    setPinModalOpen(false);
-    setPinningMessage(null);
-    setPinName('');
+    uiState$.pinModal.set({ open: false, message: null, name: '' });
   };
 
   const handleNodeClick = useCallback((nodeId: string) => {
-    setSelectedNodeId(nodeId);
+    uiState$.selectedNodeId.set(nodeId);
   }, []);
 
   return (
@@ -176,7 +183,7 @@ function Dashboard() {
                         : 'hover:bg-gray-100'
                     }
                   `}
-                  onClick={() => setSelectedConversationId(conv.id)}
+                  onClick={() => uiState$.selectedConversationId.set(conv.id)}
                 >
                   <span className="text-sm truncate flex-1">{conv.title}</span>
                   <button
@@ -217,13 +224,7 @@ function Dashboard() {
 
           {/* Context Control */}
           <div className="p-4 border-t border-gray-200 bg-white">
-            <ContextControl
-              nodes={nodes}
-              selectedRefs={selectedNodeRefs}
-              useOnlyExplicit={useOnlyExplicit}
-              onRefsChange={setSelectedNodeRefs}
-              onUseOnlyExplicitChange={setUseOnlyExplicit}
-            />
+            <ContextControl nodes={nodes} />
           </div>
         </div>
 
@@ -231,6 +232,7 @@ function Dashboard() {
         <div className="flex-1 bg-gray-100">
           <GraphView
             nodes={nodes}
+            references={nodeReferences}
             selectedNode={selectedNode || null}
             onNodeSelect={handleNodeClick}
           />
@@ -239,10 +241,7 @@ function Dashboard() {
         {/* Chat Panel */}
         <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
           <ChatPanel
-            conversationId={selectedConversationId}
             messages={selectedConversation?.messages || []}
-            selectedNodeRefs={selectedNodeRefs}
-            useOnlyExplicit={useOnlyExplicit}
             onPinMessage={handlePinMessage}
             onNodeClick={handleNodeClick}
           />
@@ -262,7 +261,7 @@ function Dashboard() {
               <input
                 type="text"
                 value={pinName}
-                onChange={(e) => setPinName(e.target.value)}
+                onChange={(e) => uiState$.pinModal.name.set(e.target.value)}
                 placeholder="Give this node a name..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
@@ -275,9 +274,7 @@ function Dashboard() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
-                  setPinModalOpen(false);
-                  setPinningMessage(null);
-                  setPinName('');
+                  uiState$.pinModal.set({ open: false, message: null, name: '' });
                 }}
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >

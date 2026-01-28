@@ -172,6 +172,13 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }
 
+    // Create conversation flow edge: user message -> AI response
+    await db.insert(nodeReferences).values({
+      fromNodeId: userNode[0].id,
+      toNodeId: aiNode[0].id,
+      referenceType: 'explicit',
+    });
+
     // Create implicit references from user message to context nodes
     for (const contextNode of contextNodes) {
       await db.insert(nodeReferences).values({
