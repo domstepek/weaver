@@ -210,4 +210,85 @@ export const chatApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  sendStream: async (
+    data: {
+      conversationId: string;
+      message: string;
+      explicitRefs?: string[];
+      useOnlyExplicit?: boolean;
+    },
+    callbacks: {
+      onChunk: (text: string) => void;
+      onDone: (response: ChatResponse) => void;
+      onError: (error: Error) => void;
+    },
+  ): Promise<void> => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          if (!window.location.pathname.startsWith('/login')) {
+            window.location.href = '/login';
+          }
+          throw new ApiError(401, 'Unauthorized');
+        }
+        const error = await response
+          .json()
+          .catch(() => ({ error: 'Unknown error' }));
+        throw new ApiError(response.status, error.error || 'Unknown error');
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Response body is not readable');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'chunk') {
+                callbacks.onChunk(data.text);
+              } else if (data.type === 'done') {
+                callbacks.onDone({
+                  userMessage: data.userMessage,
+                  assistantMessage: data.assistantMessage,
+                  contextUsed: data.contextUsed,
+                });
+              } else if (data.type === 'error') {
+                callbacks.onError(new Error(data.message));
+              }
+            } catch (parseError) {
+              console.error('Failed to parse SSE data:', parseError);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      callbacks.onError(
+        error instanceof Error ? error : new Error('Unknown streaming error'),
+      );
+    }
+  },
 };
