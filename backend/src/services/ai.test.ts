@@ -4,11 +4,11 @@ import type { Node } from '../db/schema.js';
 
 describe('AI Service', () => {
 	describe('generateEmbedding', () => {
-		it('should generate a 1536-dimensional embedding', async () => {
+		it('should generate a 1024-dimensional embedding', async () => {
 			const text = 'This is a test';
 			const embedding = await generateEmbedding(text);
 
-			expect(embedding).toHaveLength(1536);
+			expect(embedding).toHaveLength(1024);
 		});
 
 		it('should generate deterministic embeddings for the same input', async () => {

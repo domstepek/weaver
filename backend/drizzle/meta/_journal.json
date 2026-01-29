@@ -8,6 +8,13 @@
       "when": 1769384449403,
       "tag": "0000_handy_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769730368759,
+      "tag": "0001_silly_goliath",
+      "breakpoints": true
     }
   ]
 }
