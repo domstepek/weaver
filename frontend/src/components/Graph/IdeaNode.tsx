@@ -1,5 +1,7 @@
 import { Handle, type NodeProps, Position } from '@xyflow/react';
 import { memo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export interface IdeaNodeData extends Record<string, unknown> {
   id: string;
@@ -47,9 +49,30 @@ export const IdeaNode = memo(({ data, selected }: NodeProps) => {
           )}
         </div>
 
-        <p className="text-sm text-gray-600 whitespace-pre-wrap break-words">
-          {truncatedContent}
-        </p>
+        <div className="text-sm text-gray-600 break-words node-content">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              p: ({ children }) => <p className="text-sm m-0">{children}</p>,
+              code: ({ inline, children }) => {
+                if (inline) {
+                  return (
+                    <code className="px-1 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-xs">
+                      {children}
+                    </code>
+                  );
+                }
+                return (
+                  <code className="block font-mono text-xs bg-gray-100 p-1 rounded">
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
+            {truncatedContent}
+          </ReactMarkdown>
+        </div>
       </div>
 
       <Handle
