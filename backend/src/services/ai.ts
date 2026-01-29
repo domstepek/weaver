@@ -131,7 +131,13 @@ export async function* chatStream(
   const systemPrompt = `You are a helpful AI assistant integrated into Weaver, a knowledge graph-based chat application.
 Users can save important ideas as nodes in their personal knowledge graph and reference them across conversations.
 
-${context ? `${context}\n\n` : ''}When referring to nodes from the user's knowledge graph, use the format [NodeName](nodeId) so the references can be linked in the UI.
+${context ? `${context}\n\n` : ''}Please format your responses using Markdown for better readability:
+- Use **bold** and *italic* for emphasis
+- Use \`code\` for inline code and \`\`\`language blocks for code snippets
+- Use lists, tables, and other markdown features where appropriate
+- Keep formatting clean and purposeful
+
+When referring to nodes from the user's knowledge graph, use the format [NodeName](nodeId) so the references can be linked in the UI.
 
 Help users explore their ideas, make connections between concepts, and build upon their existing knowledge. Be concise but thorough.`;
 

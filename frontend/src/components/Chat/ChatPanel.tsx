@@ -2,6 +2,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useValue } from '@legendapp/state/react';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { chatApi, type Message } from '@/api/client';
 import { chatState$, uiState$ } from '@/stores';
 import { MessageBubble } from './MessageBubble';
@@ -142,8 +144,28 @@ export function ChatPanel({
             {streamingMessage && (
               <div className="mb-4 flex justify-start">
                 <div className="max-w-[80%] bg-gray-100 text-gray-900 rounded-lg px-4 py-3">
-                  <div className="whitespace-pre-wrap break-words">
-                    {streamingMessage.content}
+                  <div className="message-content break-words">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code: ({ inline, className, children }) => {
+                          if (inline) {
+                            return (
+                              <code className="px-1.5 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-sm">
+                                {children}
+                              </code>
+                            );
+                          }
+                          return (
+                            <code className={`block font-mono text-sm ${className || ''}`}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {streamingMessage.content}
+                    </ReactMarkdown>
                     <span className="inline-block w-2 h-4 ml-1 bg-gray-900 animate-pulse" />
                   </div>
                 </div>
