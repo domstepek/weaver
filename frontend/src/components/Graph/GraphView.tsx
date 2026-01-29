@@ -46,18 +46,14 @@ function layoutNodes(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   );
 
-  // Position nodes in a grid
-  const cols = Math.ceil(Math.sqrt(sortedNodes.length));
-  const spacing = { x: 350, y: 200 };
+  // Position nodes vertically in a single column (top to bottom, oldest first)
+  const spacing = { y: 250 };
 
   sortedNodes.forEach((node, index) => {
-    const col = index % cols;
-    const row = Math.floor(index / cols);
-
     graphNodes.push({
       id: node.id,
       type: 'idea',
-      position: { x: col * spacing.x, y: row * spacing.y },
+      position: { x: 0, y: index * spacing.y },
       data: {
         id: node.id,
         content: node.content,
