@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useValue } from '@legendapp/state/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { conversationsApi, type Message, nodesApi } from './api/client';
@@ -274,7 +274,11 @@ function Dashboard() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
-                  uiState$.pinModal.set({ open: false, message: null, name: '' });
+                  uiState$.pinModal.set({
+                    open: false,
+                    message: null,
+                    name: '',
+                  });
                 }}
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >

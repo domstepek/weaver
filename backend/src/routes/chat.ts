@@ -142,7 +142,9 @@ router.post('/', async (req: Request, res: Response) => {
       for await (const chunk of chatStream(messageHistory, context)) {
         aiResponse += chunk;
         // Send chunk to client
-        res.write(`data: ${JSON.stringify({ type: 'chunk', text: chunk })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({ type: 'chunk', text: chunk })}\n\n`,
+        );
       }
 
       // Stream complete, now save to database

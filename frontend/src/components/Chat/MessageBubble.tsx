@@ -1,7 +1,7 @@
 import type React from 'react';
-import type { Message } from '@/api/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Message } from '@/api/client';
 
 interface MessageBubbleProps {
   message: Message;
@@ -17,7 +17,8 @@ export function MessageBubble({
   const isUser = message.role === 'user';
 
   // UUID pattern for detecting node references
-  const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const UUID_PATTERN =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -64,7 +65,9 @@ export function MessageBubble({
                   );
                 }
                 return (
-                  <code className={`block font-mono text-sm ${className || ''}`}>
+                  <code
+                    className={`block font-mono text-sm ${className || ''}`}
+                  >
                     {children}
                   </code>
                 );

@@ -162,7 +162,8 @@ export const nodesApi = {
     return apiFetch<Node[]>(`/api/nodes/search?${searchParams.toString()}`);
   },
 
-  getAllReferences: () => apiFetch<NodeReference[]>('/api/nodes/references/all'),
+  getAllReferences: () =>
+    apiFetch<NodeReference[]>('/api/nodes/references/all'),
 };
 
 // Conversations API
