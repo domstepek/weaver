@@ -116,3 +116,36 @@ Help users explore their ideas, make connections between concepts, and build upo
   const textBlock = response.content.find((block) => block.type === 'text');
   return textBlock ? textBlock.text : '';
 }
+
+// Chat with Claude using streaming
+export async function* chatStream(
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  context: string,
+): AsyncGenerator<string, void, unknown> {
+  const systemPrompt = `You are a helpful AI assistant integrated into Weaver, a knowledge graph-based chat application.
+Users can save important ideas as nodes in their personal knowledge graph and reference them across conversations.
+
+${context ? `${context}\n\n` : ''}When referring to nodes from the user's knowledge graph, use the format [NodeName](nodeId) so the references can be linked in the UI.
+
+Help users explore their ideas, make connections between concepts, and build upon their existing knowledge. Be concise but thorough.`;
+
+  const stream = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 4096,
+    system: systemPrompt,
+    messages: messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    })),
+    stream: true,
+  });
+
+  for await (const event of stream) {
+    if (
+      event.type === 'content_block_delta' &&
+      event.delta.type === 'text_delta'
+    ) {
+      yield event.delta.text;
+    }
+  }
+}

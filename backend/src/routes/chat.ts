@@ -10,7 +10,7 @@ import {
 } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import {
-  chat,
+  chatStream,
   findSimilarNodes,
   formatNodesAsContext,
   generateEmbedding,
@@ -30,7 +30,7 @@ const chatSchema = z.object({
   useOnlyExplicit: z.boolean().optional().default(false),
 });
 
-// Send message and get AI response
+// Send message and get AI response with streaming
 router.post('/', async (req: Request, res: Response) => {
   try {
     const body = chatSchema.parse(req.body);
@@ -130,91 +130,120 @@ router.post('/', async (req: Request, res: Response) => {
     }));
     messageHistory.push({ role: 'user', content: body.message });
 
-    // Get AI response
-    const aiResponse = await chat(messageHistory, context);
+    // Set up Server-Sent Events
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
 
-    // Create node for AI response
-    const aiEmbedding = await generateEmbedding(aiResponse);
-    const aiNode = await db
-      .insert(nodes)
-      .values({
-        userId,
-        content: aiResponse,
-        embedding: aiEmbedding,
-      })
-      .returning();
+    let aiResponse = '';
 
-    // Add AI response to conversation
-    await db.insert(conversationNodes).values({
-      conversationId: body.conversationId,
-      nodeId: aiNode[0].id,
-      role: 'assistant',
-      position: nextPosition + 1,
-    });
-
-    // Parse references from AI response and create edges
-    const referencedNodeIds = parseNodeReferences(aiResponse);
-    if (referencedNodeIds.length > 0) {
-      // Verify referenced nodes belong to user
-      const validRefs = await db
-        .select()
-        .from(nodes)
-        .where(
-          and(eq(nodes.userId, userId), inArray(nodes.id, referencedNodeIds)),
-        );
-
-      for (const ref of validRefs) {
-        await db.insert(nodeReferences).values({
-          fromNodeId: aiNode[0].id,
-          toNodeId: ref.id,
-          referenceType: 'explicit',
-        });
+    try {
+      // Stream AI response
+      for await (const chunk of chatStream(messageHistory, context)) {
+        aiResponse += chunk;
+        // Send chunk to client
+        res.write(`data: ${JSON.stringify({ type: 'chunk', text: chunk })}\n\n`);
       }
-    }
 
-    // Create conversation flow edge: user message -> AI response
-    await db.insert(nodeReferences).values({
-      fromNodeId: userNode[0].id,
-      toNodeId: aiNode[0].id,
-      referenceType: 'explicit',
-    });
+      // Stream complete, now save to database
+      // Create node for AI response
+      const aiEmbedding = await generateEmbedding(aiResponse);
+      const aiNode = await db
+        .insert(nodes)
+        .values({
+          userId,
+          content: aiResponse,
+          embedding: aiEmbedding,
+        })
+        .returning();
 
-    // Create implicit references from user message to context nodes
-    for (const contextNode of contextNodes) {
-      await db.insert(nodeReferences).values({
-        fromNodeId: userNode[0].id,
-        toNodeId: contextNode.id,
-        referenceType: 'implicit',
-      });
-    }
-
-    // Update conversation timestamp
-    await db
-      .update(conversations)
-      .set({ updatedAt: new Date() })
-      .where(eq(conversations.id, body.conversationId));
-
-    const { embedding: userEmb, ...userNodeWithoutEmbedding } = userNode[0];
-    const { embedding: aiEmb, ...aiNodeWithoutEmbedding } = aiNode[0];
-
-    res.json({
-      userMessage: {
-        ...userNodeWithoutEmbedding,
-        role: 'user',
-        position: nextPosition,
-      },
-      assistantMessage: {
-        ...aiNodeWithoutEmbedding,
+      // Add AI response to conversation
+      await db.insert(conversationNodes).values({
+        conversationId: body.conversationId,
+        nodeId: aiNode[0].id,
         role: 'assistant',
         position: nextPosition + 1,
-      },
-      contextUsed: contextNodes.map((n) => ({
-        id: n.id,
-        name: n.name,
-        content:
-          n.content.substring(0, 200) + (n.content.length > 200 ? '...' : ''),
-      })),
-    });
+      });
+
+      // Parse references from AI response and create edges
+      const referencedNodeIds = parseNodeReferences(aiResponse);
+      if (referencedNodeIds.length > 0) {
+        // Verify referenced nodes belong to user
+        const validRefs = await db
+          .select()
+          .from(nodes)
+          .where(
+            and(eq(nodes.userId, userId), inArray(nodes.id, referencedNodeIds)),
+          );
+
+        for (const ref of validRefs) {
+          await db.insert(nodeReferences).values({
+            fromNodeId: aiNode[0].id,
+            toNodeId: ref.id,
+            referenceType: 'explicit',
+          });
+        }
+      }
+
+      // Create conversation flow edge: user message -> AI response
+      await db.insert(nodeReferences).values({
+        fromNodeId: userNode[0].id,
+        toNodeId: aiNode[0].id,
+        referenceType: 'explicit',
+      });
+
+      // Create implicit references from user message to context nodes
+      for (const contextNode of contextNodes) {
+        await db.insert(nodeReferences).values({
+          fromNodeId: userNode[0].id,
+          toNodeId: contextNode.id,
+          referenceType: 'implicit',
+        });
+      }
+
+      // Update conversation timestamp
+      await db
+        .update(conversations)
+        .set({ updatedAt: new Date() })
+        .where(eq(conversations.id, body.conversationId));
+
+      const { embedding: userEmb, ...userNodeWithoutEmbedding } = userNode[0];
+      const { embedding: aiEmb, ...aiNodeWithoutEmbedding } = aiNode[0];
+
+      // Send final event with complete data
+      res.write(
+        `data: ${JSON.stringify({
+          type: 'done',
+          userMessage: {
+            ...userNodeWithoutEmbedding,
+            role: 'user',
+            position: nextPosition,
+          },
+          assistantMessage: {
+            ...aiNodeWithoutEmbedding,
+            role: 'assistant',
+            position: nextPosition + 1,
+          },
+          contextUsed: contextNodes.map((n) => ({
+            id: n.id,
+            name: n.name,
+            content:
+              n.content.substring(0, 200) +
+              (n.content.length > 200 ? '...' : ''),
+          })),
+        })}\n\n`,
+      );
+      res.end();
+    } catch (streamError) {
+      console.error('Streaming error:', streamError);
+      res.write(
+        `data: ${JSON.stringify({
+          type: 'error',
+          message: 'Failed to generate response',
+        })}\n\n`,
+      );
+      res.end();
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       res
