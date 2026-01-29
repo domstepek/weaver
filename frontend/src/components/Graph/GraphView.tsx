@@ -3,6 +3,7 @@ import {
   BackgroundVariant,
   Controls,
   type Edge,
+  MarkerType,
   type Node,
   type NodeTypes,
   ReactFlow,
@@ -67,13 +68,18 @@ function layoutNodes(
   references.forEach((ref) => {
     // Only add edge if both nodes are in the current node list
     if (nodeIds.has(ref.fromNodeId) && nodeIds.has(ref.toNodeId)) {
+      const edgeColor = ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8';
       graphEdges.push({
         id: ref.id,
         source: ref.fromNodeId,
         target: ref.toNodeId,
         animated: ref.referenceType === 'implicit',
         style: {
-          stroke: ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8',
+          stroke: edgeColor,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeColor,
         },
       });
     }
