@@ -44,7 +44,7 @@ body {
 	stroke: #0ea5e9;
 }
 
-/* Message bubble link styles */
+/* Message bubble markdown styles */
 .message-content a {
 	color: #0ea5e9;
 	text-decoration: underline;
@@ -53,4 +53,161 @@ body {
 
 .message-content a:hover {
 	color: #0284c7;
+}
+
+/* Code blocks */
+.message-content pre {
+	background-color: #1e293b;
+	color: #e2e8f0;
+	border-radius: 6px;
+	padding: 12px;
+	overflow-x: auto;
+	margin: 8px 0;
+}
+
+.message-content pre code {
+	background: none;
+	padding: 0;
+	color: inherit;
+	font-size: 0.875rem;
+	line-height: 1.5;
+}
+
+.message-content code {
+	background-color: #f1f5f9;
+	color: #1e293b;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 0.875rem;
+}
+
+/* Lists */
+.message-content ul,
+.message-content ol {
+	margin: 8px 0;
+	padding-left: 24px;
+}
+
+.message-content li {
+	margin: 4px 0;
+}
+
+.message-content ul {
+	list-style-type: disc;
+}
+
+.message-content ol {
+	list-style-type: decimal;
+}
+
+/* Nested lists */
+.message-content ul ul,
+.message-content ol ul {
+	list-style-type: circle;
+}
+
+.message-content ul ul ul,
+.message-content ol ul ul {
+	list-style-type: square;
+}
+
+/* Blockquotes */
+.message-content blockquote {
+	border-left: 4px solid #cbd5e1;
+	padding-left: 16px;
+	margin: 12px 0;
+	color: #64748b;
+	font-style: italic;
+}
+
+/* Tables */
+.message-content table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 12px 0;
+}
+
+.message-content th,
+.message-content td {
+	border: 1px solid #e2e8f0;
+	padding: 8px 12px;
+	text-align: left;
+}
+
+.message-content th {
+	background-color: #f8fafc;
+	font-weight: 600;
+}
+
+.message-content tr:nth-child(even) {
+	background-color: #f8fafc;
+}
+
+/* Headings */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+	font-weight: 600;
+	margin: 16px 0 8px 0;
+	line-height: 1.3;
+}
+
+.message-content h1 {
+	font-size: 1.875rem;
+}
+
+.message-content h2 {
+	font-size: 1.5rem;
+}
+
+.message-content h3 {
+	font-size: 1.25rem;
+}
+
+.message-content h4 {
+	font-size: 1.125rem;
+}
+
+.message-content h5 {
+	font-size: 1rem;
+}
+
+.message-content h6 {
+	font-size: 0.875rem;
+}
+
+/* Paragraphs */
+.message-content p {
+	margin: 8px 0;
+	line-height: 1.6;
+}
+
+.message-content p:first-child {
+	margin-top: 0;
+}
+
+.message-content p:last-child {
+	margin-bottom: 0;
+}
+
+/* Horizontal rules */
+.message-content hr {
+	border: none;
+	border-top: 2px solid #e2e8f0;
+	margin: 16px 0;
+}
+
+/* Task lists (GFM) */
+.message-content input[type="checkbox"] {
+	margin-right: 8px;
+}
+
+/* Strikethrough (GFM) */
+.message-content del {
+	text-decoration: line-through;
+	opacity: 0.7;
 }

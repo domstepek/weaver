@@ -1,5 +1,7 @@
 import type React from 'react';
 import type { Message } from '@/api/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,46 +16,8 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
-  // Parse and render content with node references as clickable links
-  const renderContent = (content: string) => {
-    // Match [NodeName](nodeId) pattern
-    const regex = /\[([^\]]+)\]\(([a-f0-9-]{36})\)/g;
-    const parts: (string | React.ReactElement)[] = [];
-    let lastIndex = 0;
-    let match = regex.exec(content);
-
-    while (match !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        parts.push(content.slice(lastIndex, match.index));
-      }
-
-      // Add clickable link
-      const nodeName = match[1];
-      const nodeId = match[2];
-      parts.push(
-        <button
-          type="button"
-          key={`${nodeId}-${match.index}`}
-          onClick={() => onNodeClick(nodeId)}
-          className="text-primary-600 hover:text-primary-800 underline"
-        >
-          {nodeName}
-        </button>,
-      );
-
-      lastIndex = match.index + match[0].length;
-
-      match = regex.exec(content);
-    }
-
-    // Add remaining text
-    if (lastIndex < content.length) {
-      parts.push(content.slice(lastIndex));
-    }
-
-    return parts.length > 0 ? parts : content;
-  };
+  // UUID pattern for detecting node references
+  const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -62,8 +26,53 @@ export function MessageBubble({
           isUser ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-900'
         }`}
       >
-        <div className="message-content whitespace-pre-wrap break-words">
-          {renderContent(message.content)}
+        <div className="message-content break-words">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              a: ({ href, children }) => {
+                // Check if href is a UUID (node reference)
+                if (href && UUID_PATTERN.test(href)) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => onNodeClick(href)}
+                      className="text-primary-600 hover:text-primary-800 underline cursor-pointer"
+                    >
+                      {children}
+                    </button>
+                  );
+                }
+                // Regular URL link
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {children}
+                  </a>
+                );
+              },
+              code: ({ inline, className, children }) => {
+                if (inline) {
+                  return (
+                    <code className="px-1.5 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-sm">
+                      {children}
+                    </code>
+                  );
+                }
+                return (
+                  <code className={`block font-mono text-sm ${className || ''}`}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
         </div>
 
         <div
