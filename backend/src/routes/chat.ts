@@ -91,6 +91,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Gather context nodes
     const contextNodes: (typeof nodes.$inferSelect)[] = [];
+    const explicitNodeIds = new Set<string>();
 
     // Fetch explicit refs (verify ownership)
     if (body.explicitRefs.length > 0) {
@@ -101,6 +102,10 @@ router.post('/', async (req: Request, res: Response) => {
           and(eq(nodes.userId, userId), inArray(nodes.id, body.explicitRefs)),
         );
       contextNodes.push(...explicitNodes);
+      // Track which nodes are explicitly selected
+      for (const node of explicitNodes) {
+        explicitNodeIds.add(node.id);
+      }
     }
 
     // Find semantically similar nodes if not using only explicit refs
@@ -194,13 +199,16 @@ router.post('/', async (req: Request, res: Response) => {
         referenceType: 'explicit',
       });
 
-      // Create implicit references from user message to context nodes
+      // Create implicit references only to explicitly selected context nodes
+      // This prevents unwanted connections across conversations from semantic search
       for (const contextNode of contextNodes) {
-        await db.insert(nodeReferences).values({
-          fromNodeId: userNode[0].id,
-          toNodeId: contextNode.id,
-          referenceType: 'implicit',
-        });
+        if (explicitNodeIds.has(contextNode.id)) {
+          await db.insert(nodeReferences).values({
+            fromNodeId: userNode[0].id,
+            toNodeId: contextNode.id,
+            referenceType: 'implicit',
+          });
+        }
       }
 
       // Update conversation timestamp
