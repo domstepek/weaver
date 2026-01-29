@@ -3,6 +3,7 @@ import {
   BackgroundVariant,
   Controls,
   type Edge,
+  MarkerType,
   type Node,
   type NodeTypes,
   ReactFlow,
@@ -29,7 +30,7 @@ interface GraphViewProps {
   onNodeSelect: (nodeId: string) => void;
 }
 
-// Simple layout algorithm - position nodes in a grid
+// Simple layout algorithm - position nodes in a grid, sorted chronologically
 function layoutNodes(
   nodeList: ApiNode[],
   references: NodeReference[],
@@ -41,18 +42,19 @@ function layoutNodes(
   // Create a set of node IDs to display
   const nodeIds = new Set(nodeList.map((n) => n.id));
 
-  // Position nodes in a grid
-  const cols = Math.ceil(Math.sqrt(nodeList.length));
-  const spacing = { x: 350, y: 200 };
+  // Sort nodes by creation date (oldest first)
+  const sortedNodes = [...nodeList].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
 
-  nodeList.forEach((node, index) => {
-    const col = index % cols;
-    const row = Math.floor(index / cols);
+  // Position nodes vertically in a single column (top to bottom, oldest first)
+  const spacing = { y: 250 };
 
+  sortedNodes.forEach((node, index) => {
     graphNodes.push({
       id: node.id,
       type: 'idea',
-      position: { x: col * spacing.x, y: row * spacing.y },
+      position: { x: 0, y: index * spacing.y },
       data: {
         id: node.id,
         content: node.content,
@@ -66,13 +68,18 @@ function layoutNodes(
   references.forEach((ref) => {
     // Only add edge if both nodes are in the current node list
     if (nodeIds.has(ref.fromNodeId) && nodeIds.has(ref.toNodeId)) {
+      const edgeColor = ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8';
       graphEdges.push({
         id: ref.id,
         source: ref.fromNodeId,
         target: ref.toNodeId,
         animated: ref.referenceType === 'implicit',
         style: {
-          stroke: ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8',
+          stroke: edgeColor,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeColor,
         },
       });
     }

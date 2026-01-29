@@ -139,6 +139,33 @@ Uses `@xyflow/react` in `frontend/src/components/Graph/GraphView.tsx`:
 - `/api/conversations` - CRUD for chat conversations
 - `/api/chat` - POST to send message and get AI response with context
 
+## Git and Linear Workflow
+
+### Branching Strategy
+- **ALWAYS branch off `origin/main`** - Never branch off feature branches or other work-in-progress branches
+- Use the branch name suggested by Linear (found in the issue's `gitBranchName` field)
+- Before creating a branch, run `git fetch origin` to ensure you have the latest main
+
+### Linear Issue Management
+When working on a Linear ticket:
+1. **Start of work**: Mark the issue as "In Progress" using Linear's `update_issue` endpoint
+2. **PR opened**: Mark the issue as "In Review" using Linear's `update_issue` endpoint
+3. **PR merged**: The issue should be marked as "Done" (typically done manually or via automation)
+
+### Example Workflow
+```bash
+# Fetch latest and create branch from origin/main
+git fetch origin
+git checkout -b feature-branch-name origin/main
+
+# Make changes, commit, and push
+git add .
+git commit -m "Your commit message"
+git push -u origin feature-branch-name
+
+# Create PR and update Linear to "In Review"
+```
+
 ## Important Development Notes
 
 - The embedding implementation is currently a **deterministic mock** - replace with real embeddings for production (OpenAI or Voyage AI)
