@@ -29,7 +29,7 @@ interface GraphViewProps {
   onNodeSelect: (nodeId: string) => void;
 }
 
-// Simple layout algorithm - position nodes in a grid
+// Simple layout algorithm - position nodes in a grid, sorted chronologically
 function layoutNodes(
   nodeList: ApiNode[],
   references: NodeReference[],
@@ -41,11 +41,16 @@ function layoutNodes(
   // Create a set of node IDs to display
   const nodeIds = new Set(nodeList.map((n) => n.id));
 
+  // Sort nodes by creation date (oldest first)
+  const sortedNodes = [...nodeList].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+
   // Position nodes in a grid
-  const cols = Math.ceil(Math.sqrt(nodeList.length));
+  const cols = Math.ceil(Math.sqrt(sortedNodes.length));
   const spacing = { x: 350, y: 200 };
 
-  nodeList.forEach((node, index) => {
+  sortedNodes.forEach((node, index) => {
     const col = index % cols;
     const row = Math.floor(index / cols);
 
