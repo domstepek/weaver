@@ -1,4 +1,6 @@
 import type { Node } from '@/api/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface NodeListProps {
   nodes: Node[];
@@ -117,7 +119,23 @@ function NodeListItem({
           </svg>
         </button>
       </div>
-      <p className="text-xs text-gray-500 truncate">{truncatedContent}</p>
+      <div className="text-xs text-gray-500 truncate node-content">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ children }) => <span className="inline">{children}</span>,
+            code: ({ inline, children }) => (
+              <code className="px-1 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-xs">
+                {children}
+              </code>
+            ),
+            strong: ({ children }) => <strong>{children}</strong>,
+            em: ({ children }) => <em>{children}</em>,
+          }}
+        >
+          {truncatedContent}
+        </ReactMarkdown>
+      </div>
     </li>
   );
 }
