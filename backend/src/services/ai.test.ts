@@ -1,6 +1,44 @@
-import { describe, expect, it } from 'vitest';
-import { formatNodesAsContext, generateEmbedding, parseNodeReferences } from './ai.js';
+import { describe, expect, it, vi } from 'vitest';
 import type { Node } from '../db/schema.js';
+import { formatNodesAsContext, generateEmbedding, parseNodeReferences } from './ai.js';
+
+// Mock the voyageai module
+vi.mock('voyageai', () => {
+	// Create a mock embed function
+	const mockEmbed = vi.fn().mockImplementation(({ input }: { input: string }) => {
+		// Generate a deterministic mock embedding based on input
+		const embedding = new Array(1024).fill(0);
+		for (let i = 0; i < input.length; i++) {
+			const charCode = input.charCodeAt(i);
+			embedding[i % 1024] += charCode / 1000;
+			embedding[(i * 7) % 1024] += charCode / 2000;
+			embedding[(i * 13) % 1024] += charCode / 3000;
+		}
+
+		// Normalize the embedding
+		const magnitude = Math.sqrt(
+			embedding.reduce((sum, val) => sum + val * val, 0),
+		);
+		if (magnitude > 0) {
+			for (let i = 0; i < embedding.length; i++) {
+				embedding[i] /= magnitude;
+			}
+		}
+
+		return Promise.resolve({
+			data: [{ embedding }],
+		});
+	});
+
+	// Create a mock VoyageAIClient class
+	class MockVoyageAIClient {
+		embed = mockEmbed;
+	}
+
+	return {
+		VoyageAIClient: MockVoyageAIClient,
+	};
+});
 
 describe('AI Service', () => {
 	describe('generateEmbedding', () => {
