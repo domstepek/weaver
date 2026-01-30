@@ -1,5 +1,5 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useValue } from '@legendapp/state/react';
+import { useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -157,7 +157,9 @@ export function ChatPanel({
                             );
                           }
                           return (
-                            <code className={`block font-mono text-sm ${className || ''}`}>
+                            <code
+                              className={`block font-mono text-sm ${className || ''}`}
+                            >
                               {children}
                             </code>
                           );

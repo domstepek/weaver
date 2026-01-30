@@ -1,6 +1,6 @@
-import type { Node } from '@/api/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Node } from '@/api/client';
 
 interface NodeListProps {
   nodes: Node[];

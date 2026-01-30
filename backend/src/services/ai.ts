@@ -65,6 +65,34 @@ export function formatNodesAsContext(nodeList: Node[]): string {
   return `## Relevant Context from Your Knowledge Graph\n\n${formatted}`;
 }
 
+// Generate a concise name/summary for a node using Claude
+export async function generateNodeName(content: string): Promise<string> {
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 50,
+      temperature: 0.7,
+      system: `You are a helpful assistant that creates very short, descriptive titles for text content. Generate a concise title (3-8 words max) that captures the main idea. Do not use quotes or special formatting - just return the plain text title.`,
+      messages: [
+        {
+          role: 'user',
+          content: `Create a short, descriptive title for this content:\n\n${content.slice(0, 1000)}`,
+        },
+      ],
+    });
+
+    const textBlock = response.content.find((block) => block.type === 'text');
+    const generatedName = textBlock?.text?.trim() || '';
+
+    // Truncate to max 200 chars if needed and clean up
+    return generatedName.slice(0, 200).replace(/^["']|["']$/g, '');
+  } catch (error) {
+    console.error('Error generating node name:', error);
+    // Fallback to first few words if API fails
+    return content.slice(0, 50).trim() + (content.length > 50 ? '...' : '');
+  }
+}
+
 // Parse node references from text (format: [NodeName](nodeId))
 export function parseNodeReferences(text: string): string[] {
   const regex = /\[([^\]]+)\]\(([a-f0-9-]{36})\)/g;

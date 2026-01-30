@@ -3,7 +3,11 @@ import { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
 import { db, nodeReferences, nodes } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
-import { findSimilarNodes, generateEmbedding } from '../services/ai.js';
+import {
+  findSimilarNodes,
+  generateEmbedding,
+  generateNodeName,
+} from '../services/ai.js';
 
 const router = Router();
 
@@ -37,12 +41,15 @@ router.post('/', async (req: Request, res: Response) => {
     // Generate embedding for the content
     const embedding = await generateEmbedding(body.content);
 
+    // Auto-generate name if not provided
+    const name = body.name || (await generateNodeName(body.content));
+
     const newNode = await db
       .insert(nodes)
       .values({
         userId,
         content: body.content,
-        name: body.name,
+        name,
         isPinned: body.isPinned,
         embedding,
       })
@@ -183,6 +190,11 @@ router.patch('/:id', async (req: Request, res: Response) => {
     if (body.content !== undefined) {
       updateData.content = body.content;
       updateData.embedding = await generateEmbedding(body.content);
+
+      // Auto-regenerate name if content changes and no explicit name is provided
+      if (body.name === undefined) {
+        updateData.name = await generateNodeName(body.content);
+      }
     }
 
     if (body.name !== undefined) {
