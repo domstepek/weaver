@@ -50,7 +50,7 @@ export const nodes = pgTable(
     content: text('content').notNull(),
     name: text('name'),
     isPinned: boolean('is_pinned').notNull().default(false),
-    embedding: vector('embedding', { dimensions: 1536 }),
+    embedding: vector('embedding', { dimensions: 1024 }),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

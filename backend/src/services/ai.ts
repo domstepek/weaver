@@ -1,41 +1,29 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { VoyageAIClient } from 'voyageai';
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { db, type Node, nodes } from '../db/index.js';
 
 const anthropic = new Anthropic();
+const voyage = new VoyageAIClient({
+  apiKey: process.env.VOYAGE_API_KEY,
+});
 
-// Generate embedding using Anthropic's voyage model via the messages API
-// Note: Anthropic doesn't have a direct embedding API, so we'll use a workaround
-// For production, you'd use OpenAI's embedding API or Voyage AI directly
-// Here we'll use a simple hash-based mock for development, or you can integrate OpenAI
+// Generate embedding using Voyage AI
+// Uses voyage-3.5-lite model which is optimized for retrieval and cost-effective
+// Free tier: 200M tokens per account
+// Output dimension: 1024 (default for voyage-3.5-lite)
 export async function generateEmbedding(text: string): Promise<number[]> {
-  // For a real implementation, you'd use OpenAI's embedding API or Voyage AI
-  // This is a placeholder that creates a deterministic embedding based on text
-  // In production, replace with:
-  // const openai = new OpenAI();
-  // const response = await openai.embeddings.create({ model: 'text-embedding-3-small', input: text });
-  // return response.data[0].embedding;
+  const response = await voyage.embed({
+    input: text,
+    model: 'voyage-3.5-lite',
+    outputDimension: 1024,
+  });
 
-  // Simple deterministic embedding for development
-  const embedding = new Array(1536).fill(0);
-  for (let i = 0; i < text.length; i++) {
-    const charCode = text.charCodeAt(i);
-    embedding[i % 1536] += charCode / 1000;
-    embedding[(i * 7) % 1536] += charCode / 2000;
-    embedding[(i * 13) % 1536] += charCode / 3000;
+  if (!response.data?.[0]?.embedding) {
+    throw new Error('Failed to generate embedding from Voyage AI');
   }
 
-  // Normalize the embedding
-  const magnitude = Math.sqrt(
-    embedding.reduce((sum, val) => sum + val * val, 0),
-  );
-  if (magnitude > 0) {
-    for (let i = 0; i < embedding.length; i++) {
-      embedding[i] /= magnitude;
-    }
-  }
-
-  return embedding;
+  return response.data[0].embedding;
 }
 
 // Find semantically similar nodes for a user
