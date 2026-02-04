@@ -124,7 +124,7 @@ function NodeListItem({
           remarkPlugins={[remarkGfm]}
           components={{
             p: ({ children }) => <span className="inline">{children}</span>,
-            code: ({ inline, children }) => (
+            code: ({ children }) => (
               <code className="px-1 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-xs">
                 {children}
               </code>
