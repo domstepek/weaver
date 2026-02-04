@@ -135,6 +135,10 @@ function Dashboard() {
 
   const handleNodeClick = useCallback((nodeId: string) => {
     uiState$.selectedNodeId.set(nodeId);
+    const refs = uiState$.selectedNodeRefs.peek();
+    if (!refs.includes(nodeId)) {
+      uiState$.selectedNodeRefs.set([...refs, nodeId]);
+    }
   }, []);
 
   return (
