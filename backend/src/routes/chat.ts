@@ -56,6 +56,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Get existing messages in the conversation
     const existingMessages = await db
       .select({
+        nodeId: conversationNodes.nodeId,
         role: conversationNodes.role,
         content: nodes.content,
         position: conversationNodes.position,
@@ -92,6 +93,8 @@ router.post('/', async (req: Request, res: Response) => {
     // Gather context nodes
     const contextNodes: (typeof nodes.$inferSelect)[] = [];
     const explicitNodeIds = new Set<string>();
+    // Limit semantic search to nodes already in this conversation to avoid cross-conversation context.
+    const conversationNodeIds = existingMessages.map((message) => message.nodeId);
 
     // Fetch explicit refs (verify ownership)
     if (body.explicitRefs.length > 0) {
@@ -109,12 +112,13 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     // Find semantically similar nodes if not using only explicit refs
-    if (!body.useOnlyExplicit) {
+    if (!body.useOnlyExplicit && conversationNodeIds.length > 0) {
       const similarNodes = await findSimilarNodes(
         userId,
         userEmbedding,
         5,
         userNode[0].id,
+        conversationNodeIds,
       );
       // Add similar nodes that aren't already in context
       const existingIds = new Set(contextNodes.map((n) => n.id));

@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { VoyageAIClient } from 'voyageai';
-import { and, eq, ne, sql } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { db, type Node, nodes } from '../db/index.js';
 
 const anthropic = new Anthropic();
@@ -32,19 +32,27 @@ export async function findSimilarNodes(
   embedding: number[],
   limit: number = 5,
   excludeNodeId?: string,
+  allowedNodeIds?: string[],
 ): Promise<Node[]> {
+  if (allowedNodeIds && allowedNodeIds.length === 0) {
+    return [];
+  }
+
   const embeddingStr = `[${embedding.join(',')}]`;
+  const whereConditions = [
+    eq(nodes.userId, userId),
+    sql`${nodes.embedding} IS NOT NULL`,
+    excludeNodeId ? ne(nodes.id, excludeNodeId) : sql`true`,
+  ];
+
+  if (allowedNodeIds && allowedNodeIds.length > 0) {
+    whereConditions.push(inArray(nodes.id, allowedNodeIds));
+  }
 
   const query = db
     .select()
     .from(nodes)
-    .where(
-      and(
-        eq(nodes.userId, userId),
-        sql`${nodes.embedding} IS NOT NULL`,
-        excludeNodeId ? ne(nodes.id, excludeNodeId) : sql`true`,
-      ),
-    )
+    .where(and(...whereConditions))
     .orderBy(sql`${nodes.embedding} <=> ${embeddingStr}::vector`)
     .limit(limit);
 
