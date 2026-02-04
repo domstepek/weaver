@@ -246,6 +246,7 @@ function Dashboard() {
         <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
           <ChatPanel
             messages={selectedConversation?.messages || []}
+            nodes={nodes}
             onPinMessage={handlePinMessage}
             onNodeClick={handleNodeClick}
           />

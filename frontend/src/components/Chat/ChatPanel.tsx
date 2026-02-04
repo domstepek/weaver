@@ -1,21 +1,23 @@
 import { useValue } from '@legendapp/state/react';
 import { useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { chatApi, type Message } from '@/api/client';
+import { chatApi, type Message, type Node } from '@/api/client';
 import { chatState$, uiState$ } from '@/stores';
 import { MessageBubble } from './MessageBubble';
 
 interface ChatPanelProps {
   messages: Message[];
+  nodes: Node[];
   onPinMessage: (message: Message) => void;
   onNodeClick: (nodeId: string) => void;
 }
 
 export function ChatPanel({
   messages,
+  nodes,
   onPinMessage,
   onNodeClick,
 }: ChatPanelProps) {
@@ -35,6 +37,11 @@ export function ChatPanel({
   } | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
+
+  const nodesById = useMemo(
+    () => new Map(nodes.map((node) => [node.id, node])),
+    [nodes],
+  );
 
   // Scroll to bottom when messages change
   // biome-ignore lint/correctness/useExhaustiveDependencies: We want to scroll when messages change
@@ -178,12 +185,29 @@ export function ChatPanel({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Context indicator */}
+      {/* Selected context badges */}
       {selectedNodeRefs.length > 0 && (
-        <div className="px-4 py-2 bg-primary-50 border-t border-primary-100 text-sm text-primary-700">
-          {selectedNodeRefs.length} node{selectedNodeRefs.length > 1 ? 's' : ''}{' '}
-          selected as context
-          {useOnlyExplicit && ' (explicit only)'}
+        <div className="px-4 py-2 bg-white border-t border-gray-200">
+          <div className="flex flex-wrap gap-2">
+            {selectedNodeRefs.map((nodeId) => {
+              const node = nodesById.get(nodeId);
+              const label = node?.name || `Node-${nodeId.slice(0, 8)}`;
+              return (
+                <span
+                  key={nodeId}
+                  className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-medium border border-primary-100"
+                  title={node?.content || ''}
+                >
+                  {label}
+                </span>
+              );
+            })}
+            {useOnlyExplicit && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs border border-gray-200">
+                Explicit only
+              </span>
+            )}
+          </div>
         </div>
       )}
 
