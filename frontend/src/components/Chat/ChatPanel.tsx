@@ -43,6 +43,11 @@ export function ChatPanel({
     [nodes],
   );
 
+  const removeContextNode = (nodeId: string) => {
+    const refs = uiState$.selectedNodeRefs.peek();
+    uiState$.selectedNodeRefs.set(refs.filter((id) => id !== nodeId));
+  };
+
   // Scroll to bottom when messages change
   // biome-ignore lint/correctness/useExhaustiveDependencies: We want to scroll when messages change
   useEffect(() => {
@@ -195,10 +200,28 @@ export function ChatPanel({
               return (
                 <span
                   key={nodeId}
-                  className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-medium border border-primary-100"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-medium border border-primary-100"
                   title={node?.content || ''}
                 >
-                  {label}
+                  <span>{label}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeContextNode(nodeId)}
+                    className="rounded-full p-0.5 text-primary-700/70 hover:text-primary-700 hover:bg-primary-100 transition-colors"
+                    aria-label={`Remove ${label} from context`}
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
                 </span>
               );
             })}
