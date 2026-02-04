@@ -34,7 +34,7 @@ interface GraphViewProps {
 function layoutNodes(
   nodeList: ApiNode[],
   references: NodeReference[],
-  _selectedNode: NodeWithReferences | null,
+  selectedNode: NodeWithReferences | null,
 ) {
   const graphNodes: Node<IdeaNodeData>[] = [];
   const graphEdges: Edge[] = [];
@@ -50,11 +50,14 @@ function layoutNodes(
   // Position nodes vertically in a single column (top to bottom, oldest first)
   const spacing = { y: 250 };
 
+  const selectedNodeId = selectedNode?.id ?? null;
+
   sortedNodes.forEach((node, index) => {
     graphNodes.push({
       id: node.id,
       type: 'idea',
       position: { x: 0, y: index * spacing.y },
+      selected: selectedNodeId === node.id,
       data: {
         id: node.id,
         content: node.content,
