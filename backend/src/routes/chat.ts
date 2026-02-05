@@ -189,8 +189,8 @@ router.post('/', async (req: Request, res: Response) => {
 
         for (const ref of validRefs) {
           await db.insert(nodeReferences).values({
-            fromNodeId: aiNode[0].id,
-            toNodeId: ref.id,
+            fromNodeId: ref.id,
+            toNodeId: aiNode[0].id,
             referenceType: 'explicit',
           });
         }
@@ -208,8 +208,8 @@ router.post('/', async (req: Request, res: Response) => {
       for (const contextNode of contextNodes) {
         if (explicitNodeIds.has(contextNode.id)) {
           await db.insert(nodeReferences).values({
-            fromNodeId: userNode[0].id,
-            toNodeId: contextNode.id,
+            fromNodeId: contextNode.id,
+            toNodeId: userNode[0].id,
             referenceType: 'implicit',
           });
         }
