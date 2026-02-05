@@ -1,21 +1,23 @@
 import { useValue } from '@legendapp/state/react';
 import { useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { chatApi, type Message } from '@/api/client';
+import { chatApi, type Message, type Node } from '@/api/client';
 import { chatState$, uiState$ } from '@/stores';
 import { MessageBubble } from './MessageBubble';
 
 interface ChatPanelProps {
   messages: Message[];
+  nodes: Node[];
   onPinMessage: (message: Message) => void;
   onNodeClick: (nodeId: string) => void;
 }
 
 export function ChatPanel({
   messages,
+  nodes,
   onPinMessage,
   onNodeClick,
 }: ChatPanelProps) {
@@ -35,6 +37,16 @@ export function ChatPanel({
   } | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
+
+  const nodesById = useMemo(
+    () => new Map(nodes.map((node) => [node.id, node])),
+    [nodes],
+  );
+
+  const removeContextNode = (nodeId: string) => {
+    const refs = uiState$.selectedNodeRefs.peek();
+    uiState$.selectedNodeRefs.set(refs.filter((id) => id !== nodeId));
+  };
 
   // Scroll to bottom when messages change
   // biome-ignore lint/correctness/useExhaustiveDependencies: We want to scroll when messages change
@@ -178,12 +190,47 @@ export function ChatPanel({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Context indicator */}
+      {/* Selected context badges */}
       {selectedNodeRefs.length > 0 && (
-        <div className="px-4 py-2 bg-primary-50 border-t border-primary-100 text-sm text-primary-700">
-          {selectedNodeRefs.length} node{selectedNodeRefs.length > 1 ? 's' : ''}{' '}
-          selected as context
-          {useOnlyExplicit && ' (explicit only)'}
+        <div className="px-4 py-2 bg-white border-t border-gray-200">
+          <div className="flex flex-wrap gap-2">
+            {selectedNodeRefs.map((nodeId) => {
+              const node = nodesById.get(nodeId);
+              const label = node?.name || `Node-${nodeId.slice(0, 8)}`;
+              return (
+                <span
+                  key={nodeId}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-medium border border-primary-100"
+                  title={node?.content || ''}
+                >
+                  <span>{label}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeContextNode(nodeId)}
+                    className="rounded-full p-0.5 text-primary-700/70 hover:text-primary-700 hover:bg-primary-100 transition-colors"
+                    aria-label={`Remove ${label} from context`}
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </span>
+              );
+            })}
+            {useOnlyExplicit && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs border border-gray-200">
+                Explicit only
+              </span>
+            )}
+          </div>
         </div>
       )}
 

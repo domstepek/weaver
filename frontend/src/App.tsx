@@ -134,7 +134,21 @@ function Dashboard() {
   };
 
   const handleNodeClick = useCallback((nodeId: string) => {
+    const currentSelectedId = uiState$.selectedNodeId.peek();
+    const refs = uiState$.selectedNodeRefs.peek();
+
+    if (currentSelectedId === nodeId) {
+      uiState$.selectedNodeId.set(null);
+      if (refs.includes(nodeId)) {
+        uiState$.selectedNodeRefs.set(refs.filter((id) => id !== nodeId));
+      }
+      return;
+    }
+
     uiState$.selectedNodeId.set(nodeId);
+    if (!refs.includes(nodeId)) {
+      uiState$.selectedNodeRefs.set([...refs, nodeId]);
+    }
   }, []);
 
   return (
@@ -242,6 +256,7 @@ function Dashboard() {
         <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
           <ChatPanel
             messages={selectedConversation?.messages || []}
+            nodes={nodes}
             onPinMessage={handlePinMessage}
             onNodeClick={handleNodeClick}
           />

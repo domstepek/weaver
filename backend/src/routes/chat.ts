@@ -56,6 +56,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Get existing messages in the conversation
     const existingMessages = await db
       .select({
+        nodeId: conversationNodes.nodeId,
         role: conversationNodes.role,
         content: nodes.content,
         position: conversationNodes.position,
@@ -91,6 +92,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Gather context nodes
     const contextNodes: (typeof nodes.$inferSelect)[] = [];
+    const explicitNodeIds = new Set<string>();
+    // Limit semantic search to nodes already in this conversation to avoid cross-conversation context.
+    const conversationNodeIds = existingMessages.map((message) => message.nodeId);
 
     // Fetch explicit refs (verify ownership)
     if (body.explicitRefs.length > 0) {
@@ -101,15 +105,20 @@ router.post('/', async (req: Request, res: Response) => {
           and(eq(nodes.userId, userId), inArray(nodes.id, body.explicitRefs)),
         );
       contextNodes.push(...explicitNodes);
+      // Track which nodes are explicitly selected
+      for (const node of explicitNodes) {
+        explicitNodeIds.add(node.id);
+      }
     }
 
     // Find semantically similar nodes if not using only explicit refs
-    if (!body.useOnlyExplicit) {
+    if (!body.useOnlyExplicit && conversationNodeIds.length > 0) {
       const similarNodes = await findSimilarNodes(
         userId,
         userEmbedding,
         5,
         userNode[0].id,
+        conversationNodeIds,
       );
       // Add similar nodes that aren't already in context
       const existingIds = new Set(contextNodes.map((n) => n.id));
@@ -180,8 +189,8 @@ router.post('/', async (req: Request, res: Response) => {
 
         for (const ref of validRefs) {
           await db.insert(nodeReferences).values({
-            fromNodeId: aiNode[0].id,
-            toNodeId: ref.id,
+            fromNodeId: ref.id,
+            toNodeId: aiNode[0].id,
             referenceType: 'explicit',
           });
         }
@@ -194,13 +203,16 @@ router.post('/', async (req: Request, res: Response) => {
         referenceType: 'explicit',
       });
 
-      // Create implicit references from user message to context nodes
+      // Create implicit references only to explicitly selected context nodes
+      // This prevents unwanted connections across conversations from semantic search
       for (const contextNode of contextNodes) {
-        await db.insert(nodeReferences).values({
-          fromNodeId: userNode[0].id,
-          toNodeId: contextNode.id,
-          referenceType: 'implicit',
-        });
+        if (explicitNodeIds.has(contextNode.id)) {
+          await db.insert(nodeReferences).values({
+            fromNodeId: contextNode.id,
+            toNodeId: userNode[0].id,
+            referenceType: 'implicit',
+          });
+        }
       }
 
       // Update conversation timestamp
