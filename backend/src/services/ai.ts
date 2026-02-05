@@ -75,6 +75,9 @@ export function formatNodesAsContext(nodeList: Node[]): string {
 
 // Generate a concise name/summary for a node using Claude
 export async function generateNodeName(content: string): Promise<string> {
+  const fallback =
+    content.slice(0, 50).trim() + (content.length > 50 ? '...' : '');
+
   try {
     const response = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
@@ -92,12 +95,16 @@ export async function generateNodeName(content: string): Promise<string> {
     const textBlock = response.content.find((block) => block.type === 'text');
     const generatedName = textBlock?.text?.trim() || '';
 
+    if (!generatedName) {
+      return fallback;
+    }
+
     // Truncate to max 200 chars if needed and clean up
     return generatedName.slice(0, 200).replace(/^["']|["']$/g, '');
   } catch (error) {
     console.error('Error generating node name:', error);
     // Fallback to first few words if API fails
-    return content.slice(0, 50).trim() + (content.length > 50 ? '...' : '');
+    return fallback;
   }
 }
 
