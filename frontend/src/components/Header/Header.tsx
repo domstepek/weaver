@@ -4,13 +4,15 @@ export function Header() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="h-14 border-b border-gray-200 bg-white px-4 flex items-center justify-between">
+    <header className="h-14 border-b border-gray-200 bg-white px-3 sm:px-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <h1 className="text-xl font-bold text-gray-900">Weaver</h1>
-        <span className="text-sm text-gray-500">Knowledge Graph Chat</span>
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900">Weaver</h1>
+        <span className="hidden md:inline text-sm text-gray-500">
+          Knowledge Graph Chat
+        </span>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         {user && (
           <>
             <div className="flex items-center gap-2">
@@ -25,12 +27,14 @@ export function Header() {
                   {user.name.charAt(0).toUpperCase()}
                 </div>
               )}
-              <span className="text-sm text-gray-700">{user.name}</span>
+              <span className="hidden sm:inline text-sm text-gray-700">
+                {user.name}
+              </span>
             </div>
 
             <button
               onClick={logout}
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
               Logout
             </button>
