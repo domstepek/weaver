@@ -80,6 +80,7 @@ This document tracks the current product feature set for Weaver and serves as th
 - `WEA-10`: Updated pin flow to preserve existing names when pin modal input is blank.
 - `WEA-10`: Added backend safeguard to auto-name unnamed nodes during pin updates.
 - `WEA-10`: Added one-time backend backfill command `pnpm --filter backend backfill:node-names` for historical unnamed nodes.
+- `WEA-10`: Updated node-name LLM model ID to an account-available Anthropic Haiku model to prevent forced fallback naming.
 
 ### 2026-02-05
 

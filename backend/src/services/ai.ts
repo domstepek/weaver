@@ -80,7 +80,7 @@ export async function generateNodeName(content: string): Promise<string> {
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 50,
       temperature: 0.7,
       system: `You are a helpful assistant that creates very short, descriptive titles for text content. Generate a concise title (3-8 words max) that captures the main idea. Do not use quotes or special formatting - just return the plain text title.`,
