@@ -8,103 +8,105 @@ import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { ChatPanel } from './components/Chat/ChatPanel';
 import { GraphView } from './components/Graph/GraphView';
 import { Header } from './components/Header/Header';
+import { ResizeHandle } from './components/Layout/ResizeHandle';
 import { ContextControl } from './components/Sidebar/ContextControl';
 import { NodeList } from './components/Sidebar/NodeList';
+import { useResizablePanel } from './hooks/useResizablePanel';
 import { uiState$ } from './stores';
 
 type MobileView = 'conversations' | 'chat' | 'graph' | 'context';
 
 const SIDEBAR_WIDTH_STORAGE_KEY = 'weaver:desktop-conversations-width';
+const CHAT_WIDTH_STORAGE_KEY = 'weaver:desktop-chat-width';
 const DEFAULT_SIDEBAR_WIDTH = 288;
+const DEFAULT_CHAT_WIDTH = 384;
 const MIN_SIDEBAR_WIDTH = 240;
 const MAX_SIDEBAR_WIDTH = 480;
-const CHAT_PANEL_WIDTH = 384;
+const MIN_CHAT_WIDTH = 320;
+const MAX_CHAT_WIDTH = 560;
 const MIN_GRAPH_PANEL_WIDTH = 160;
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
 
 function Dashboard() {
   const queryClient = useQueryClient();
   const [mobileView, setMobileView] = useState<MobileView>('conversations');
   const desktopLayoutRef = useRef<HTMLDivElement | null>(null);
-  const resizeOffsetRef = useRef(0);
-  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
-  const [desktopSidebarWidth, setDesktopSidebarWidth] = useState(() => {
-    if (typeof window === 'undefined') {
-      return DEFAULT_SIDEBAR_WIDTH;
-    }
-
-    const storedWidth = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
-    const parsedWidth = storedWidth ? Number.parseInt(storedWidth, 10) : NaN;
-
-    return Number.isFinite(parsedWidth)
-      ? clamp(parsedWidth, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH)
-      : DEFAULT_SIDEBAR_WIDTH;
-  });
+  const desktopSidebarWidthRef = useRef(DEFAULT_SIDEBAR_WIDTH);
+  const desktopChatWidthRef = useRef(DEFAULT_CHAT_WIDTH);
   const selectedConversationId = useValue(uiState$.selectedConversationId);
   const selectedNodeId = useValue(uiState$.selectedNodeId);
   const pinModalOpen = useValue(uiState$.pinModal.open);
   const pinningMessage = useValue(uiState$.pinModal.message);
   const pinName = useValue(uiState$.pinModal.name);
 
+  const getDesktopLayoutWidth = useCallback(() => {
+    return desktopLayoutRef.current?.clientWidth ?? window.innerWidth;
+  }, []);
+
   const getDesktopSidebarMaxWidth = useCallback(() => {
-    const layoutWidth = desktopLayoutRef.current?.clientWidth ?? window.innerWidth;
-    const maxByLayout = layoutWidth - CHAT_PANEL_WIDTH - MIN_GRAPH_PANEL_WIDTH;
+    const layoutWidth = getDesktopLayoutWidth();
+    const maxByLayout =
+      layoutWidth - desktopChatWidthRef.current - MIN_GRAPH_PANEL_WIDTH;
 
     return Math.max(
       MIN_SIDEBAR_WIDTH,
       Math.min(MAX_SIDEBAR_WIDTH, maxByLayout),
     );
-  }, []);
+  }, [getDesktopLayoutWidth]);
+
+  const getDesktopChatMaxWidth = useCallback(() => {
+    const layoutWidth = getDesktopLayoutWidth();
+    const maxByLayout =
+      layoutWidth - desktopSidebarWidthRef.current - MIN_GRAPH_PANEL_WIDTH;
+
+    return Math.max(MIN_CHAT_WIDTH, Math.min(MAX_CHAT_WIDTH, maxByLayout));
+  }, [getDesktopLayoutWidth]);
+
+  const {
+    width: desktopSidebarWidth,
+    isResizing: isResizingSidebar,
+    startResizing: handleSidebarResizeStart,
+    clampWidth: clampSidebarWidth,
+  } = useResizablePanel({
+    containerRef: desktopLayoutRef,
+    defaultWidth: DEFAULT_SIDEBAR_WIDTH,
+    getMaxWidth: getDesktopSidebarMaxWidth,
+    maxWidth: MAX_SIDEBAR_WIDTH,
+    minWidth: MIN_SIDEBAR_WIDTH,
+    side: 'left',
+    storageKey: SIDEBAR_WIDTH_STORAGE_KEY,
+  });
+
+  const {
+    width: desktopChatWidth,
+    isResizing: isResizingChat,
+    startResizing: handleChatResizeStart,
+    clampWidth: clampChatWidth,
+  } = useResizablePanel({
+    containerRef: desktopLayoutRef,
+    defaultWidth: DEFAULT_CHAT_WIDTH,
+    getMaxWidth: getDesktopChatMaxWidth,
+    maxWidth: MAX_CHAT_WIDTH,
+    minWidth: MIN_CHAT_WIDTH,
+    side: 'right',
+    storageKey: CHAT_WIDTH_STORAGE_KEY,
+  });
+
+  desktopSidebarWidthRef.current = desktopSidebarWidth;
+  desktopChatWidthRef.current = desktopChatWidth;
 
   useEffect(() => {
-    window.localStorage.setItem(
-      SIDEBAR_WIDTH_STORAGE_KEY,
-      String(desktopSidebarWidth),
-    );
-  }, [desktopSidebarWidth]);
+    if (!Number.isFinite(desktopSidebarWidth) || !Number.isFinite(desktopChatWidth)) {
+      return;
+    }
 
-  useEffect(() => {
-    const handleResize = () => {
-      setDesktopSidebarWidth((currentWidth) =>
-        clamp(currentWidth, MIN_SIDEBAR_WIDTH, getDesktopSidebarMaxWidth()),
-      );
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [getDesktopSidebarMaxWidth]);
-
-  useEffect(() => {
-    if (!isResizingSidebar) return;
-
-    const handleMouseMove = (event: MouseEvent) => {
-      const nextWidth = event.clientX - resizeOffsetRef.current;
-      setDesktopSidebarWidth(
-        clamp(nextWidth, MIN_SIDEBAR_WIDTH, getDesktopSidebarMaxWidth()),
-      );
-    };
-
-    const handleMouseUp = () => {
-      setIsResizingSidebar(false);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-  }, [getDesktopSidebarMaxWidth, isResizingSidebar]);
+    clampSidebarWidth();
+    clampChatWidth();
+  }, [
+    clampChatWidth,
+    clampSidebarWidth,
+    desktopChatWidth,
+    desktopSidebarWidth,
+  ]);
 
   // Fetch nodes
   const { data: nodes = [] } = useQuery({
@@ -244,15 +246,6 @@ function Dashboard() {
     }
   }, []);
 
-  const handleSidebarResizeStart = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    resizeOffsetRef.current =
-      desktopLayoutRef.current?.getBoundingClientRect().left ?? 0;
-    setIsResizingSidebar(true);
-  };
-
   const renderConversations = (listClassName: string) => (
     <>
       <div className="flex items-center justify-between mb-3">
@@ -355,18 +348,10 @@ function Dashboard() {
           </div>
         </div>
 
-        <button
-          type="button"
-          aria-label="Resize conversations panel"
+        <ResizeHandle
+          ariaLabel="Resize conversations panel"
+          isActive={isResizingSidebar}
           onMouseDown={handleSidebarResizeStart}
-          className={`
-            w-1 shrink-0 cursor-col-resize transition-colors
-            ${
-              isResizingSidebar
-                ? 'bg-primary-400'
-                : 'bg-gray-200 hover:bg-gray-300'
-            }
-          `}
         />
 
         {/* Graph View */}
@@ -379,8 +364,17 @@ function Dashboard() {
           />
         </div>
 
+        <ResizeHandle
+          ariaLabel="Resize chat panel"
+          isActive={isResizingChat}
+          onMouseDown={handleChatResizeStart}
+        />
+
         {/* Chat Panel */}
-        <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
+        <div
+          className="border-l border-gray-200 bg-white flex flex-col shrink-0"
+          style={{ width: `${desktopChatWidth}px` }}
+        >
           <ChatPanel
             messages={selectedConversation?.messages || []}
             nodes={nodes}
