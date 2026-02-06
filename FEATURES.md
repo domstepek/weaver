@@ -42,7 +42,8 @@ This document tracks the current product feature set for Weaver and serves as th
 
 - Hybrid context strategy combines user-selected explicit refs with semantic retrieval of similar nodes.
 - Semantic retrieval is skipped when explicit-only mode is enabled.
-- Semantic retrieval is backed by pgvector cosine similarity over 1536-d embeddings.
+- Embeddings are generated with Voyage AI (`voyage-3.5-lite`, 1024 dimensions).
+- Semantic retrieval is backed by pgvector cosine similarity over 1024-d embeddings.
 - Context formatting injects selected/retrieved nodes into assistant system prompt.
 
 ### Node Reference Linking in Responses
@@ -65,10 +66,14 @@ This document tracks the current product feature set for Weaver and serves as th
 
 ## Known Constraints
 
-- Embeddings are currently deterministic mock vectors, not production embedding models.
-- Semantic quality is therefore suitable for development/testing, not production-grade retrieval.
+- Embedding generation depends on a valid `VOYAGE_API_KEY` and external API availability.
+- Retrieval quality and latency are sensitive to embedding model behavior and API performance.
 
 ## Feature Change Log
+
+### 2026-02-06
+
+- Updated context/retrieval documentation to reflect live Voyage AI embeddings (`voyage-3.5-lite`, 1024-d) instead of deterministic mock embeddings.
 
 ### 2026-02-05
 
