@@ -33,7 +33,7 @@ function Dashboard() {
   const desktopSidebarWidthRef = useRef(DEFAULT_SIDEBAR_WIDTH);
   const desktopChatWidthRef = useRef(DEFAULT_CHAT_WIDTH);
   const selectedConversationId = useValue(uiState$.selectedConversationId);
-  const selectedNodeId = useValue(uiState$.selectedNodeId);
+  const selectedNodeRefs = useValue(uiState$.selectedNodeRefs);
   const pinModalOpen = useValue(uiState$.pinModal.open);
   const pinningMessage = useValue(uiState$.pinModal.message);
   const pinName = useValue(uiState$.pinModal.name);
@@ -134,13 +134,6 @@ function Dashboard() {
         ? conversationsApi.get(selectedConversationId)
         : null,
     enabled: !!selectedConversationId,
-  });
-
-  // Fetch selected node details
-  const { data: selectedNode } = useQuery({
-    queryKey: ['node', selectedNodeId],
-    queryFn: () => (selectedNodeId ? nodesApi.get(selectedNodeId) : null),
-    enabled: !!selectedNodeId,
   });
 
   // Create conversation mutation
@@ -341,7 +334,7 @@ function Dashboard() {
           <div className="flex-1 overflow-y-auto p-4">
             <NodeList
               nodes={nodes}
-              selectedNodeId={selectedNodeId}
+              selectedNodeIds={selectedNodeRefs}
               onNodeSelect={handleNodeClick}
               onNodeDelete={(id) => deleteNodeMutation.mutate(id)}
             />
@@ -364,7 +357,7 @@ function Dashboard() {
           <GraphView
             nodes={nodes}
             references={nodeReferences}
-            selectedNode={selectedNode || null}
+            selectedNodeIds={selectedNodeRefs}
             onNodeSelect={handleNodeClick}
           />
         </div>
@@ -442,7 +435,7 @@ function Dashboard() {
               <GraphView
                 nodes={nodes}
                 references={nodeReferences}
-                selectedNode={selectedNode || null}
+                selectedNodeIds={selectedNodeRefs}
                 onNodeSelect={handleNodeClick}
               />
             </div>
@@ -453,7 +446,7 @@ function Dashboard() {
               <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <NodeList
                   nodes={nodes}
-                  selectedNodeId={selectedNodeId}
+                  selectedNodeIds={selectedNodeRefs}
                   onNodeSelect={handleNodeClick}
                   onNodeDelete={(id) => deleteNodeMutation.mutate(id)}
                 />
