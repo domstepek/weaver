@@ -14,6 +14,7 @@ import {
   findSimilarNodes,
   formatNodesAsContext,
   generateEmbedding,
+  generateNodeName,
   parseNodeReferences,
 } from '../services/ai.js';
 
@@ -73,11 +74,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Create node for user message
     const userEmbedding = await generateEmbedding(body.message);
+    const userNodeName = await generateNodeName(body.message);
     const userNode = await db
       .insert(nodes)
       .values({
         userId,
         content: body.message,
+        name: userNodeName,
         embedding: userEmbedding,
       })
       .returning();
@@ -159,11 +162,13 @@ router.post('/', async (req: Request, res: Response) => {
       // Stream complete, now save to database
       // Create node for AI response
       const aiEmbedding = await generateEmbedding(aiResponse);
+      const aiNodeName = await generateNodeName(aiResponse);
       const aiNode = await db
         .insert(nodes)
         .values({
           userId,
           content: aiResponse,
+          name: aiNodeName,
           embedding: aiEmbedding,
         })
         .returning();

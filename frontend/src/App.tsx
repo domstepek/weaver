@@ -216,13 +216,18 @@ function Dashboard() {
   const handlePinSubmit = async () => {
     const msg = uiState$.pinModal.message.peek();
     if (!msg) return;
+    const name = uiState$.pinModal.name.peek().trim();
+    const data: Parameters<typeof nodesApi.update>[1] = {
+      isPinned: true,
+    };
+
+    if (name.length > 0) {
+      data.name = name;
+    }
 
     await updateNodeMutation.mutateAsync({
       id: msg.nodeId,
-      data: {
-        isPinned: true,
-        name: uiState$.pinModal.name.peek() || null,
-      },
+      data,
     });
 
     uiState$.pinModal.set({ open: false, message: null, name: '' });

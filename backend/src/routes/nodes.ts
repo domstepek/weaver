@@ -201,6 +201,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
       updateData.name = body.name;
     }
 
+    // When pinning an unnamed node without an explicit name override,
+    // generate a concise name from content so pinned nodes are always labeled.
+    if (
+      body.isPinned === true &&
+      body.name === undefined &&
+      existing[0].name === null &&
+      updateData.name === undefined
+    ) {
+      updateData.name = await generateNodeName(existing[0].content);
+    }
+
     if (body.isPinned !== undefined) {
       updateData.isPinned = body.isPinned;
     }
