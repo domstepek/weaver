@@ -89,5 +89,21 @@ describe('nodeReferences utils', () => {
       expect(parts[0]).toBe('Ends with ');
       expect(typeof parts[1]).toBe('object'); // React element
     });
+
+    it('should invoke onNodeClick when node reference button is clicked', () => {
+      const onNodeClick = vi.fn();
+      const nodeId = '12345678-1234-1234-1234-123456789abc';
+      const parts = parseNodeReferencesInContent(`[Node](${nodeId})`, onNodeClick);
+
+      expect(parts).toHaveLength(1);
+      expect(typeof parts[0]).toBe('object');
+
+      const nodeButton = parts[0] as {
+        props: { onClick: () => void };
+      };
+      nodeButton.props.onClick();
+
+      expect(onNodeClick).toHaveBeenCalledWith(nodeId);
+    });
   });
 });
