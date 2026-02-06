@@ -12,11 +12,7 @@ import {
 } from '@xyflow/react';
 import React, { useCallback, useMemo } from 'react';
 import '@xyflow/react/dist/style.css';
-import type {
-  Node as ApiNode,
-  NodeReference,
-  NodeWithReferences,
-} from '@/api/client';
+import type { Node as ApiNode, NodeReference } from '@/api/client';
 import { IdeaNode, type IdeaNodeData } from './IdeaNode';
 
 const nodeTypes: NodeTypes = {
@@ -26,7 +22,7 @@ const nodeTypes: NodeTypes = {
 interface GraphViewProps {
   nodes: ApiNode[];
   references: NodeReference[];
-  selectedNode: NodeWithReferences | null;
+  selectedNodeIds: string[];
   onNodeSelect: (nodeId: string) => void;
 }
 
@@ -34,7 +30,7 @@ interface GraphViewProps {
 function layoutNodes(
   nodeList: ApiNode[],
   references: NodeReference[],
-  selectedNode: NodeWithReferences | null,
+  selectedNodeIds: string[],
 ) {
   const graphNodes: Node<IdeaNodeData>[] = [];
   const graphEdges: Edge[] = [];
@@ -50,14 +46,14 @@ function layoutNodes(
   // Position nodes vertically in a single column (top to bottom, oldest first)
   const spacing = { y: 250 };
 
-  const selectedNodeId = selectedNode?.id ?? null;
+  const selectedNodeIdSet = new Set(selectedNodeIds);
 
   sortedNodes.forEach((node, index) => {
     graphNodes.push({
       id: node.id,
       type: 'idea',
       position: { x: 0, y: index * spacing.y },
-      selected: selectedNodeId === node.id,
+      selected: selectedNodeIdSet.has(node.id),
       data: {
         id: node.id,
         content: node.content,
@@ -95,12 +91,12 @@ function layoutNodes(
 export function GraphView({
   nodes,
   references,
-  selectedNode,
+  selectedNodeIds,
   onNodeSelect,
 }: GraphViewProps) {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => layoutNodes(nodes, references, selectedNode),
-    [nodes, references, selectedNode],
+    () => layoutNodes(nodes, references, selectedNodeIds),
+    [nodes, references, selectedNodeIds],
   );
 
   const [graphNodes, setGraphNodes, onNodesChange] =
@@ -113,11 +109,11 @@ export function GraphView({
     const { nodes: newNodes, edges: newEdges } = layoutNodes(
       nodes,
       references,
-      selectedNode,
+      selectedNodeIds,
     );
     setGraphNodes(newNodes);
     setGraphEdges(newEdges);
-  }, [nodes, references, selectedNode, setGraphNodes, setGraphEdges]);
+  }, [nodes, references, selectedNodeIds, setGraphNodes, setGraphEdges]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {

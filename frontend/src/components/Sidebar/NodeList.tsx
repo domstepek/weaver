@@ -4,14 +4,14 @@ import type { Node } from '@/api/client';
 
 interface NodeListProps {
   nodes: Node[];
-  selectedNodeId: string | null;
+  selectedNodeIds: string[];
   onNodeSelect: (nodeId: string) => void;
   onNodeDelete: (nodeId: string) => void;
 }
 
 export function NodeList({
   nodes,
-  selectedNodeId,
+  selectedNodeIds,
   onNodeSelect,
   onNodeDelete,
 }: NodeListProps) {
@@ -33,7 +33,7 @@ export function NodeList({
               <NodeListItem
                 key={node.id}
                 node={node}
-                isSelected={node.id === selectedNodeId}
+                isSelected={selectedNodeIds.includes(node.id)}
                 onClick={() => onNodeSelect(node.id)}
                 onDelete={() => onNodeDelete(node.id)}
               />
@@ -55,7 +55,7 @@ export function NodeList({
               <NodeListItem
                 key={node.id}
                 node={node}
-                isSelected={node.id === selectedNodeId}
+                isSelected={selectedNodeIds.includes(node.id)}
                 onClick={() => onNodeSelect(node.id)}
                 onDelete={() => onNodeDelete(node.id)}
               />

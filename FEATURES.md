@@ -82,6 +82,7 @@ This document tracks the current product feature set for Weaver and serves as th
 - `WEA-10`: Added one-time backend backfill command `pnpm --filter backend backfill:node-names` for historical unnamed nodes.
 - `WEA-10`: Updated node-name LLM model ID to an account-available Anthropic Haiku model to prevent forced fallback naming.
 - `WEA-10`: Added `--all` mode to node-name backfill command to regenerate names for all nodes when needed.
+- `WEA-13`: Fixed multi-select context highlighting so all selected context nodes render selected styling in both graph and sidebar node lists (not just one active node).
 
 ### 2026-02-05
 
