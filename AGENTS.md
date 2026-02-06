@@ -8,6 +8,12 @@ Weaver is a knowledge graph-based chat application that allows users to save imp
 
 **Core Concept**: Users chat with Claude, pin important messages as nodes, and the system automatically finds and includes relevant context from their knowledge graph in future conversations based on semantic similarity.
 
+## Feature Documentation Requirement
+
+- Keep the full product feature inventory in `FEATURES.md` at the active project repository root, not in `AGENTS.md`.
+- Any agent that implements or materially changes a feature must update that repo-root `FEATURES.md` in the same change with a concise summary entry under its change log section.
+- If a feature is removed or behavior changes, update the relevant feature section and log entry in that repo-root `FEATURES.md`.
+
 ## Architecture
 
 ### Monorepo Structure (pnpm workspace)
@@ -149,8 +155,13 @@ Uses `@xyflow/react` in `frontend/src/components/Graph/GraphView.tsx`:
 ### Linear Issue Management
 When working on a Linear ticket:
 1. **Start of work**: Mark the issue as "In Progress" using Linear's `update_issue` endpoint
-2. **PR opened**: Mark the issue as "In Review" using Linear's `update_issue` endpoint
-3. **PR merged**: The issue should be marked as "Done" (typically done manually or via automation)
+2. **After plan acceptance, before implementation**: Post the full accepted execution plan as a comment on the same Linear ticket using `create_comment`
+3. **PR opened**: Mark the issue as "In Review" using Linear's `update_issue` endpoint
+4. **PR merged**: The issue should be marked as "Done" (typically done manually or via automation)
+
+When creating a new Linear ticket:
+- **Always set an issue type** (for example: `bug`, `improvement`, `feature`) during creation.
+- Use Linear's supported issue types for the workspace/org; if needed, fetch them first via `list_issue_types` and then pass the selected value in the `type` field of `create_issue` (or `issue_write` when applicable).
 
 ### Example Workflow
 ```bash
