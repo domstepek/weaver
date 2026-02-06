@@ -29,6 +29,8 @@ This document tracks the current product feature set for Weaver and serves as th
 - Create, list, fetch single node, update, and delete node APIs.
 - Node list UI separates pinned nodes and recent nodes.
 - Messages can be pinned from chat with optional naming/editing via modal.
+- Chat-created user and assistant message nodes auto-generate concise names.
+- Pinning an unnamed node without an explicit name now auto-generates a name instead of leaving it unnamed.
 
 ### Graph and References
 
@@ -74,6 +76,10 @@ This document tracks the current product feature set for Weaver and serves as th
 ### 2026-02-06
 
 - Updated context/retrieval documentation to reflect live Voyage AI embeddings (`voyage-3.5-lite`, 1024-d) instead of deterministic mock embeddings.
+- `WEA-10`: Fixed node naming so chat-created nodes always get generated names.
+- `WEA-10`: Updated pin flow to preserve existing names when pin modal input is blank.
+- `WEA-10`: Added backend safeguard to auto-name unnamed nodes during pin updates.
+- `WEA-10`: Added one-time backend backfill command `pnpm --filter backend backfill:node-names` for historical unnamed nodes.
 
 ### 2026-02-05
 
