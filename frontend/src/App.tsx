@@ -1,6 +1,6 @@
 import { useValue } from '@legendapp/state/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { conversationsApi, type Message, nodesApi } from './api/client';
 import { LoginPage } from './components/Auth/LoginPage';
@@ -14,14 +14,97 @@ import { uiState$ } from './stores';
 
 type MobileView = 'conversations' | 'chat' | 'graph' | 'context';
 
+const SIDEBAR_WIDTH_STORAGE_KEY = 'weaver:desktop-conversations-width';
+const DEFAULT_SIDEBAR_WIDTH = 288;
+const MIN_SIDEBAR_WIDTH = 240;
+const MAX_SIDEBAR_WIDTH = 480;
+const CHAT_PANEL_WIDTH = 384;
+const MIN_GRAPH_PANEL_WIDTH = 160;
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
 function Dashboard() {
   const queryClient = useQueryClient();
   const [mobileView, setMobileView] = useState<MobileView>('conversations');
+  const desktopLayoutRef = useRef<HTMLDivElement | null>(null);
+  const resizeOffsetRef = useRef(0);
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
+  const [desktopSidebarWidth, setDesktopSidebarWidth] = useState(() => {
+    if (typeof window === 'undefined') {
+      return DEFAULT_SIDEBAR_WIDTH;
+    }
+
+    const storedWidth = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
+    const parsedWidth = storedWidth ? Number.parseInt(storedWidth, 10) : NaN;
+
+    return Number.isFinite(parsedWidth)
+      ? clamp(parsedWidth, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH)
+      : DEFAULT_SIDEBAR_WIDTH;
+  });
   const selectedConversationId = useValue(uiState$.selectedConversationId);
   const selectedNodeId = useValue(uiState$.selectedNodeId);
   const pinModalOpen = useValue(uiState$.pinModal.open);
   const pinningMessage = useValue(uiState$.pinModal.message);
   const pinName = useValue(uiState$.pinModal.name);
+
+  const getDesktopSidebarMaxWidth = useCallback(() => {
+    const layoutWidth = desktopLayoutRef.current?.clientWidth ?? window.innerWidth;
+    const maxByLayout = layoutWidth - CHAT_PANEL_WIDTH - MIN_GRAPH_PANEL_WIDTH;
+
+    return Math.max(
+      MIN_SIDEBAR_WIDTH,
+      Math.min(MAX_SIDEBAR_WIDTH, maxByLayout),
+    );
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      SIDEBAR_WIDTH_STORAGE_KEY,
+      String(desktopSidebarWidth),
+    );
+  }, [desktopSidebarWidth]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDesktopSidebarWidth((currentWidth) =>
+        clamp(currentWidth, MIN_SIDEBAR_WIDTH, getDesktopSidebarMaxWidth()),
+      );
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [getDesktopSidebarMaxWidth]);
+
+  useEffect(() => {
+    if (!isResizingSidebar) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const nextWidth = event.clientX - resizeOffsetRef.current;
+      setDesktopSidebarWidth(
+        clamp(nextWidth, MIN_SIDEBAR_WIDTH, getDesktopSidebarMaxWidth()),
+      );
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingSidebar(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [getDesktopSidebarMaxWidth, isResizingSidebar]);
 
   // Fetch nodes
   const { data: nodes = [] } = useQuery({
@@ -161,6 +244,15 @@ function Dashboard() {
     }
   }, []);
 
+  const handleSidebarResizeStart = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    resizeOffsetRef.current =
+      desktopLayoutRef.current?.getBoundingClientRect().left ?? 0;
+    setIsResizingSidebar(true);
+  };
+
   const renderConversations = (listClassName: string) => (
     <>
       <div className="flex items-center justify-between mb-3">
@@ -233,9 +325,15 @@ function Dashboard() {
     <div className="h-dvh flex flex-col bg-white">
       <Header />
 
-      <div className="hidden md:flex flex-1 overflow-hidden min-h-0">
+      <div
+        ref={desktopLayoutRef}
+        className="hidden md:flex flex-1 overflow-hidden min-h-0"
+      >
         {/* Left Sidebar */}
-        <div className="w-72 border-r border-gray-200 bg-gray-50 flex flex-col">
+        <div
+          className="border-r border-gray-200 bg-gray-50 flex flex-col shrink-0"
+          style={{ width: `${desktopSidebarWidth}px` }}
+        >
           {/* Conversations */}
           <div className="p-4 border-b border-gray-200">
             {renderConversations('max-h-48 overflow-y-auto')}
@@ -256,6 +354,20 @@ function Dashboard() {
             <ContextControl nodes={nodes} />
           </div>
         </div>
+
+        <button
+          type="button"
+          aria-label="Resize conversations panel"
+          onMouseDown={handleSidebarResizeStart}
+          className={`
+            w-1 shrink-0 cursor-col-resize transition-colors
+            ${
+              isResizingSidebar
+                ? 'bg-primary-400'
+                : 'bg-gray-200 hover:bg-gray-300'
+            }
+          `}
+        />
 
         {/* Graph View */}
         <div className="flex-1 min-w-0 bg-gray-100">
