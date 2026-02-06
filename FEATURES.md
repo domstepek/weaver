@@ -82,6 +82,7 @@ This document tracks the current product feature set for Weaver and serves as th
 - `WEA-10`: Added one-time backend backfill command `pnpm --filter backend backfill:node-names` for historical unnamed nodes.
 - `WEA-10`: Updated node-name LLM model ID to an account-available Anthropic Haiku model to prevent forced fallback naming.
 - `WEA-10`: Added `--all` mode to node-name backfill command to regenerate names for all nodes when needed.
+- `WEA-12`: Added root `pnpm dev:phone` and `pnpm dev:frontend:lan` scripts for LAN/mobile QA by binding frontend to `0.0.0.0:5173` while keeping backend on `:3000`.
 
 ### 2026-02-05
 

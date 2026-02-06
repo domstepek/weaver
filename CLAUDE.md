@@ -86,6 +86,9 @@ pnpm db:migrate
 # Run both frontend and backend concurrently
 pnpm dev
 
+# Run backend + phone-accessible frontend (same Wi-Fi testing)
+pnpm dev:phone
+
 # Run individually
 pnpm dev:frontend  # Vite dev server on :5173
 pnpm dev:backend   # tsx watch on :3000
@@ -171,5 +174,6 @@ git push -u origin feature-branch-name
 - The embedding implementation is currently a **deterministic mock** - replace with real embeddings for production (OpenAI or Voyage AI)
 - Google OAuth requires credentials from Google Cloud Console
 - The frontend expects backend on `localhost:3000` and runs on `localhost:5173`
+- For phone testing, run `pnpm dev:phone` and open `http://<your-lan-ip>:5173` from a device on the same Wi-Fi
 - Session cookies require `credentials: true` in CORS config (already configured)
 - PostgreSQL must have pgvector extension installed (handled by `pgvector/pgvector` Docker image)

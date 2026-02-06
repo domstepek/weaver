@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:phone": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend:lan\"",
     "dev:backend": "pnpm --filter backend dev",
     "dev:frontend": "pnpm --filter frontend dev",
+    "dev:frontend:lan": "pnpm --filter frontend exec vite --host 0.0.0.0 --port 5173 --strictPort",
     "db:generate": "pnpm --filter backend db:generate",
     "db:migrate": "pnpm --filter backend db:migrate",
     "db:studio": "pnpm --filter backend db:studio",
