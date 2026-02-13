@@ -29,7 +29,7 @@ export function parseNodeReferencesInContent(
           type: 'button',
           key: `${nodeId}-${match.index}`,
           onClick: () => onNodeClick(nodeId),
-          className: 'text-primary-600 hover:text-primary-800 underline',
+          className: 'text-text-accent hover:text-accent-hover underline',
         },
         nodeName,
       ),

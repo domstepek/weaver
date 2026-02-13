@@ -4,10 +4,10 @@ export function Header() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="h-14 border-b border-gray-200 bg-white px-3 sm:px-4 flex items-center justify-between gap-3">
+    <header className="h-14 border-b border-border bg-surface px-3 sm:px-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <h1 className="text-lg sm:text-xl font-bold text-gray-900">Weaver</h1>
-        <span className="hidden md:inline text-sm text-gray-500">
+        <h1 className="text-lg sm:text-xl font-bold text-text-primary">Weaver</h1>
+        <span className="hidden md:inline text-sm text-text-muted">
           Knowledge Graph Chat
         </span>
       </div>
@@ -23,18 +23,18 @@ export function Header() {
                   className="w-8 h-8 rounded-full"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-medium">
+                <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-accent font-medium">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
               )}
-              <span className="hidden sm:inline text-sm text-gray-700">
+              <span className="hidden sm:inline text-sm text-text-secondary">
                 {user.name}
               </span>
             </div>
 
             <button
               onClick={logout}
-              className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              className="text-xs sm:text-sm text-text-muted hover:text-text-primary transition-colors"
             >
               Logout
             </button>

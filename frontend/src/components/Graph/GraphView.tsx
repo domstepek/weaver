@@ -68,7 +68,9 @@ function layoutNodes(
     // Only add edge if both nodes are in the current node list
     if (nodeIds.has(ref.fromNodeId) && nodeIds.has(ref.toNodeId)) {
       const edgeColor =
-        ref.referenceType === 'explicit' ? '#0ea5e9' : '#94a3b8';
+        ref.referenceType === 'explicit'
+          ? 'var(--color-accent)'
+          : 'var(--color-border-strong)';
       graphEdges.push({
         id: ref.id,
         source: ref.fromNodeId,
@@ -124,7 +126,7 @@ export function GraphView({
 
   if (nodes.length === 0) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50 text-gray-500">
+      <div className="h-full flex items-center justify-center bg-canvas-muted text-text-muted">
         <div className="text-center">
           <p className="text-lg mb-2">No nodes yet</p>
           <p className="text-sm">
@@ -148,7 +150,12 @@ export function GraphView({
       maxZoom={2}
     >
       <Controls />
-      <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+      <Background
+        variant={BackgroundVariant.Dots}
+        gap={20}
+        size={1}
+        color="var(--color-border-subtle)"
+      />
     </ReactFlow>
   );
 }

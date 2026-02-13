@@ -115,7 +115,7 @@ export function ChatPanel({
 
   if (!conversationId) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500">
+      <div className="flex-1 flex items-center justify-center text-text-muted">
         <div className="text-center">
           <p className="text-lg mb-2">No conversation selected</p>
           <p className="text-sm">
@@ -131,7 +131,7 @@ export function ChatPanel({
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 && !pendingUserMessage ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
+          <div className="h-full flex items-center justify-center text-text-muted">
             <p>Start the conversation by sending a message</p>
           </div>
         ) : (
@@ -146,7 +146,7 @@ export function ChatPanel({
             ))}
             {pendingUserMessage && (
               <div className="mb-4 flex justify-end">
-                <div className="max-w-[80%] bg-primary-600 text-white rounded-lg px-4 py-3">
+                <div className="max-w-[80%] bg-accent text-accent-contrast rounded-lg px-4 py-3 shadow-panel">
                   <div className="whitespace-pre-wrap break-words">
                     {pendingUserMessage}
                   </div>
@@ -155,15 +155,15 @@ export function ChatPanel({
             )}
             {streamingMessage && (
               <div className="mb-4 flex justify-start">
-                <div className="max-w-[80%] bg-gray-100 text-gray-900 rounded-lg px-4 py-3">
+                <div className="max-w-[80%] bg-surface-muted text-text-primary rounded-lg px-4 py-3 border border-border shadow-panel">
                   <div className="message-content break-words">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
-                        code: ({ inline, className, children }) => {
-                          if (inline) {
+                        code: ({ className, children }) => {
+                          if (!className) {
                             return (
-                              <code className="px-1.5 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-sm">
+                              <code className="px-1.5 py-0.5 rounded bg-surface-overlay text-text-secondary font-mono text-sm">
                                 {children}
                               </code>
                             );
@@ -180,7 +180,7 @@ export function ChatPanel({
                     >
                       {streamingMessage.content}
                     </ReactMarkdown>
-                    <span className="inline-block w-2 h-4 ml-1 bg-gray-900 animate-pulse" />
+                    <span className="inline-block w-2 h-4 ml-1 bg-text-primary animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export function ChatPanel({
 
       {/* Selected context badges */}
       {selectedNodeRefs.length > 0 && (
-        <div className="px-4 py-2 bg-white border-t border-gray-200">
+        <div className="px-4 py-2 bg-surface border-t border-border">
           <div className="flex flex-wrap gap-2">
             {selectedNodeRefs.map((nodeId) => {
               const node = nodesById.get(nodeId);
@@ -200,14 +200,14 @@ export function ChatPanel({
               return (
                 <span
                   key={nodeId}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-medium border border-primary-100"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-accent text-text-accent text-xs font-medium border border-border-accent"
                   title={node?.content || ''}
                 >
                   <span>{label}</span>
                   <button
                     type="button"
                     onClick={() => removeContextNode(nodeId)}
-                    className="rounded-full p-0.5 text-primary-700/70 hover:text-primary-700 hover:bg-primary-100 transition-colors"
+                    className="rounded-full p-0.5 text-text-accent hover:text-accent-hover hover:bg-surface-selected transition-colors"
                     aria-label={`Remove ${label} from context`}
                   >
                     <svg
@@ -226,7 +226,7 @@ export function ChatPanel({
               );
             })}
             {useOnlyExplicit && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs border border-gray-200">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-muted text-text-muted text-xs border border-border">
                 Explicit only
               </span>
             )}
@@ -235,20 +235,20 @@ export function ChatPanel({
       )}
 
       {/* Input area */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-border bg-surface">
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => chatState$.input.set(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-border bg-canvas-muted text-text-primary rounded-lg placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-border-accent"
             disabled={isStreaming}
           />
           <button
             type="submit"
             disabled={!input.trim() || isStreaming}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-accent text-accent-contrast rounded-lg hover:bg-accent-hover disabled:opacity-disabled disabled:cursor-not-allowed transition-colors"
           >
             {isStreaming ? (
               <span className="flex items-center gap-2">
@@ -276,7 +276,7 @@ export function ChatPanel({
         </div>
 
         {streamError && (
-          <p className="mt-2 text-sm text-red-600">{streamError}</p>
+          <p className="mt-2 text-sm text-status-danger">{streamError}</p>
         )}
       </form>
     </div>

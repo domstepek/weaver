@@ -23,7 +23,9 @@ export function MessageBubble({
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`max-w-[80%] rounded-lg px-4 py-3 ${
-          isUser ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-900'
+          isUser
+            ? 'bg-accent text-accent-contrast shadow-panel'
+            : 'bg-surface-muted text-text-primary border border-border shadow-panel'
         }`}
       >
         <div className="message-content break-words">
@@ -37,7 +39,7 @@ export function MessageBubble({
                     <button
                       type="button"
                       onClick={() => onNodeClick(href)}
-                      className="text-primary-600 hover:text-primary-800 underline cursor-pointer"
+                      className="text-text-accent hover:text-accent-hover underline cursor-pointer"
                     >
                       {children}
                     </button>
@@ -49,16 +51,16 @@ export function MessageBubble({
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline"
+                    className="text-status-info hover:text-accent-hover underline"
                   >
                     {children}
                   </a>
                 );
               },
-              code: ({ inline, className, children }) => {
-                if (inline) {
+              code: ({ className, children }) => {
+                if (!className) {
                   return (
-                    <code className="px-1.5 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-sm">
+                    <code className="px-1.5 py-0.5 rounded bg-surface-overlay text-text-secondary font-mono text-sm">
                       {children}
                     </code>
                   );
@@ -79,7 +81,7 @@ export function MessageBubble({
 
         <div
           className={`mt-2 flex items-center justify-between text-xs ${
-            isUser ? 'text-primary-200' : 'text-gray-500'
+            isUser ? 'text-text-inverse' : 'text-text-muted'
           }`}
         >
           <span>

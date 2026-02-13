@@ -52,7 +52,7 @@ describe('IdeaNode', () => {
     );
 
     expect(screen.getByText('Pinned node')).toBeInTheDocument();
-    expect(container.querySelector('.border-primary-500')).toBeTruthy();
-    expect(container.querySelector('.text-yellow-500')).toBeTruthy();
+    expect(container.querySelector('.border-border-accent')).toBeTruthy();
+    expect(container.querySelector('.text-status-warning')).toBeTruthy();
   });
 });
