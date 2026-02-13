@@ -247,10 +247,10 @@ function Dashboard() {
   const renderConversations = (listClassName: string) => (
     <>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-700">Conversations</h2>
+        <h2 className="text-sm font-semibold text-text-secondary">Conversations</h2>
         <button
           onClick={handleNewConversation}
-          className="p-1 text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded"
+          className="p-1 text-text-accent hover:text-accent-hover hover:bg-surface-accent rounded transition-colors"
           title="New conversation"
         >
           <svg
@@ -277,8 +277,8 @@ function Dashboard() {
               group flex items-center justify-between px-2 py-1.5 rounded cursor-pointer
               ${
                 conv.id === selectedConversationId
-                  ? 'bg-primary-100 text-primary-900'
-                  : 'hover:bg-gray-100'
+                  ? 'bg-surface-selected text-text-primary'
+                  : 'hover:bg-surface-muted text-text-secondary'
               }
             `}
             onClick={() => handleSelectConversation(conv.id)}
@@ -289,7 +289,7 @@ function Dashboard() {
                 e.stopPropagation();
                 deleteConversationMutation.mutate(conv.id);
               }}
-              className="p-1 text-gray-400 hover:text-red-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+              className="p-1 text-text-muted hover:text-status-danger opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
               title="Delete conversation"
             >
               <svg
@@ -313,7 +313,7 @@ function Dashboard() {
   );
 
   return (
-    <div className="h-dvh flex flex-col bg-white">
+    <div className="h-dvh flex flex-col bg-canvas text-text-primary">
       <Header />
 
       <div
@@ -322,11 +322,11 @@ function Dashboard() {
       >
         {/* Left Sidebar */}
         <div
-          className="border-r border-gray-200 bg-gray-50 flex flex-col shrink-0"
+          className="border-r border-border bg-canvas-muted flex flex-col shrink-0"
           style={{ width: `${desktopSidebarWidth}px` }}
         >
           {/* Conversations */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-border">
             {renderConversations('max-h-48 overflow-y-auto')}
           </div>
 
@@ -341,7 +341,7 @@ function Dashboard() {
           </div>
 
           {/* Context Control */}
-          <div className="p-4 border-t border-gray-200 bg-white">
+          <div className="p-4 border-t border-border bg-surface">
             <ContextControl nodes={nodes} />
           </div>
         </div>
@@ -353,7 +353,7 @@ function Dashboard() {
         />
 
         {/* Graph View */}
-        <div className="flex-1 min-w-0 bg-gray-100">
+        <div className="flex-1 min-w-0 graph-panel-background">
           <GraphView
             nodes={nodes}
             references={nodeReferences}
@@ -370,7 +370,7 @@ function Dashboard() {
 
         {/* Chat Panel */}
         <div
-          className="border-l border-gray-200 bg-white flex flex-col shrink-0"
+          className="border-l border-border bg-surface flex flex-col shrink-0"
           style={{ width: `${desktopChatWidth}px` }}
         >
           <ChatPanel
@@ -383,7 +383,7 @@ function Dashboard() {
       </div>
 
       <div className="md:hidden flex-1 min-h-0 flex flex-col">
-        <div className="border-b border-gray-200 bg-white px-3 py-2">
+        <div className="border-b border-border bg-surface px-3 py-2">
           <div className="flex gap-2 overflow-x-auto">
             {([
               { id: 'conversations', label: 'Conversations' },
@@ -399,8 +399,8 @@ function Dashboard() {
                   px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-colors
                   ${
                     mobileView === tab.id
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-accent text-accent-contrast'
+                      : 'bg-surface-muted text-text-secondary hover:bg-surface-overlay'
                   }
                 `}
               >
@@ -412,15 +412,15 @@ function Dashboard() {
 
         <div className="flex-1 min-h-0">
           {mobileView === 'conversations' && (
-            <div className="h-full bg-gray-50 p-4">
-              <div className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm flex flex-col min-h-0">
+            <div className="h-full bg-canvas-muted p-4">
+              <div className="h-full rounded-xl border border-border bg-surface p-4 shadow-panel flex flex-col min-h-0">
                 {renderConversations('flex-1 min-h-0 overflow-y-auto')}
               </div>
             </div>
           )}
 
           {mobileView === 'chat' && (
-            <div className="h-full bg-white">
+            <div className="h-full bg-surface">
               <ChatPanel
                 messages={selectedConversation?.messages || []}
                 nodes={nodes}
@@ -431,7 +431,7 @@ function Dashboard() {
           )}
 
           {mobileView === 'graph' && (
-            <div className="h-full bg-gray-100">
+            <div className="h-full graph-panel-background">
               <GraphView
                 nodes={nodes}
                 references={nodeReferences}
@@ -442,8 +442,8 @@ function Dashboard() {
           )}
 
           {mobileView === 'context' && (
-            <div className="h-full overflow-y-auto bg-gray-50 p-4 space-y-4">
-              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="h-full overflow-y-auto bg-canvas-muted p-4 space-y-4">
+              <div className="rounded-xl border border-border bg-surface p-4 shadow-panel">
                 <NodeList
                   nodes={nodes}
                   selectedNodeIds={selectedNodeRefs}
@@ -452,7 +452,7 @@ function Dashboard() {
                 />
               </div>
 
-              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="rounded-xl border border-border bg-surface p-4 shadow-panel">
                 <ContextControl nodes={nodes} />
               </div>
             </div>
@@ -462,12 +462,12 @@ function Dashboard() {
 
       {/* Pin Modal */}
       {pinModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Pin as Node</h3>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-surface-elevated border border-border-strong rounded-lg p-6 w-full max-w-md shadow-overlay">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Pin as Node</h3>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 Name (optional)
               </label>
               <input
@@ -475,11 +475,11 @@ function Dashboard() {
                 value={pinName}
                 onChange={(e) => uiState$.pinModal.name.set(e.target.value)}
                 placeholder="Give this node a name..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-3 py-2 border border-border bg-canvas-muted text-text-primary rounded-lg placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-border-accent"
               />
             </div>
 
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-600 max-h-40 overflow-y-auto">
+            <div className="mb-4 p-3 bg-canvas-muted border border-border rounded-lg text-sm text-text-secondary max-h-40 overflow-y-auto">
               {pinningMessage?.content}
             </div>
 
@@ -492,14 +492,14 @@ function Dashboard() {
                     name: '',
                   });
                 }}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-text-secondary hover:bg-surface-muted rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handlePinSubmit}
                 disabled={updateNodeMutation.isPending}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 bg-accent text-accent-contrast rounded-lg hover:bg-accent-hover disabled:opacity-disabled transition-colors"
               >
                 {updateNodeMutation.isPending ? 'Pinning...' : 'Pin Node'}
               </button>

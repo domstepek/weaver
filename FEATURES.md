@@ -66,12 +66,25 @@ This document tracks the current product feature set for Weaver and serves as th
 - Node click selection syncs graph/sidebar/chat interactions.
 - Context panel supports pinned-node-first selection and search filtering.
 
+### Design System Foundations
+
+- Frontend styling is driven by centralized semantic tokens (canvas/surface/border/text/accent/status) defined in CSS variables and exposed via Tailwind theme aliases.
+- App shell and core surfaces consume semantic token classes instead of raw palette utility classes.
+- Storybook workspace documents token usage and design primitives (surface, text, accent controls).
+
 ## Known Constraints
 
 - Embedding generation depends on a valid `VOYAGE_API_KEY` and external API availability.
 - Retrieval quality and latency are sensitive to embedding model behavior and API performance.
 
 ## Feature Change Log
+
+### 2026-02-13
+
+- `WEA-17`: Added Phase 1 design-system foundations with semantic CSS variable tokens and Tailwind semantic theme mappings for dark, high-contrast dashboard styling.
+- `WEA-17`: Migrated app-shell and core surface styling to semantic token utilities for consistent panel, border, and interaction state behavior.
+- `WEA-17`: Added Storybook setup in `frontend` with token and primitive documentation pages (`Design System/Tokens`, `Surface`, `Text`, `Accent`).
+- `WEA-17`: Added design-system usage guide in `docs/design-system-foundations.md`.
 
 ### 2026-02-06
 

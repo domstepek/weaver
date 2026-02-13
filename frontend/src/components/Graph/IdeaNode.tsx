@@ -24,23 +24,23 @@ export const IdeaNode = memo(({ data, selected }: NodeProps) => {
       <Handle
         type="target"
         position={Position.Top}
-        className="w-3 h-3 !bg-gray-400"
+        className="w-3 h-3 !bg-border-strong"
       />
 
       <div
         className={`
           min-w-[200px] max-w-[300px] p-3 rounded-lg shadow-md border-2 transition-all
-          ${selected ? 'border-primary-500 shadow-lg' : 'border-gray-200'}
-          ${nodeData.isPinned ? 'bg-yellow-50' : 'bg-white'}
+          ${selected ? 'border-border-accent shadow-overlay' : 'border-border'}
+          ${nodeData.isPinned ? 'bg-surface-warning' : 'bg-surface'}
         `}
       >
         <div className="flex items-center justify-between mb-2">
-          <span className="font-medium text-gray-900 truncate flex-1">
+          <span className="font-medium text-text-primary truncate flex-1">
             {displayName}
           </span>
           {nodeData.isPinned && (
             <svg
-              className="w-4 h-4 text-yellow-500 flex-shrink-0 ml-2"
+              className="w-4 h-4 text-status-warning flex-shrink-0 ml-2"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -49,21 +49,21 @@ export const IdeaNode = memo(({ data, selected }: NodeProps) => {
           )}
         </div>
 
-        <div className="text-sm text-gray-600 break-words node-content">
+        <div className="text-sm text-text-secondary break-words node-content">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
               p: ({ children }) => <p className="text-sm m-0">{children}</p>,
-              code: ({ inline, children }) => {
-                if (inline) {
+              code: ({ className, children }) => {
+                if (!className) {
                   return (
-                    <code className="px-1 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-xs">
+                    <code className="px-1 py-0.5 rounded bg-surface-overlay text-text-secondary font-mono text-xs">
                       {children}
                     </code>
                   );
                 }
                 return (
-                  <code className="block font-mono text-xs bg-gray-100 p-1 rounded">
+                  <code className="block font-mono text-xs bg-canvas-muted text-text-secondary p-1 rounded">
                     {children}
                   </code>
                 );
@@ -78,7 +78,7 @@ export const IdeaNode = memo(({ data, selected }: NodeProps) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="w-3 h-3 !bg-gray-400"
+        className="w-3 h-3 !bg-border-strong"
       />
     </>
   );

@@ -9,16 +9,16 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
+    <div className="min-h-screen flex items-center justify-center bg-canvas px-4">
       <div className="max-w-md w-full mx-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-surface border border-border rounded-2xl shadow-overlay p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Weaver</h1>
-            <p className="text-gray-600">Graph-based knowledge chat</p>
+            <h1 className="text-3xl font-bold text-text-primary mb-2">Weaver</h1>
+            <p className="text-text-muted">Graph-based knowledge chat</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-6 p-4 bg-surface-danger border border-status-danger rounded-lg text-status-danger text-sm">
               {error === 'missing_params' &&
                 'Missing authentication parameters.'}
               {error === 'invalid_state' &&
@@ -33,7 +33,7 @@ export function LoginPage() {
 
           <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-border rounded-lg bg-surface-muted text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -56,7 +56,7 @@ export function LoginPage() {
             <span className="font-medium">Sign in with Google</span>
           </button>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-text-muted">
             Connect your ideas, build your knowledge graph
           </p>
         </div>

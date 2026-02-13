@@ -18,7 +18,7 @@ export function ResizeHandle({
       onMouseDown={onMouseDown}
       className={`
         w-1 shrink-0 cursor-col-resize transition-colors
-        ${isActive ? 'bg-primary-400' : 'bg-gray-200 hover:bg-gray-300'}
+        ${isActive ? 'bg-accent' : 'bg-border hover:bg-border-strong'}
       `}
     />
   );

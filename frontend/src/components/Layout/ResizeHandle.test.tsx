@@ -18,7 +18,7 @@ describe('ResizeHandle', () => {
       name: 'Resize conversations panel',
     });
 
-    expect(handle).toHaveClass('bg-gray-200');
+    expect(handle).toHaveClass('bg-border');
 
     fireEvent.mouseDown(handle);
     expect(onMouseDown).toHaveBeenCalledTimes(1);
@@ -35,6 +35,6 @@ describe('ResizeHandle', () => {
 
     expect(
       screen.getByRole('button', { name: 'Resize chat panel' }),
-    ).toHaveClass('bg-primary-400');
+    ).toHaveClass('bg-accent');
   });
 });

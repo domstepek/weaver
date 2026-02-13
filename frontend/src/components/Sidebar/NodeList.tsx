@@ -22,11 +22,11 @@ export function NodeList({
     <div className="space-y-4">
       {/* Pinned nodes */}
       <div>
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
           Pinned Nodes
         </h3>
         {pinnedNodes.length === 0 ? (
-          <p className="text-sm text-gray-400 italic">No pinned nodes</p>
+          <p className="text-sm text-text-muted italic">No pinned nodes</p>
         ) : (
           <ul className="space-y-1">
             {pinnedNodes.map((node) => (
@@ -44,11 +44,11 @@ export function NodeList({
 
       {/* Recent nodes */}
       <div>
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
           Recent
         </h3>
         {recentNodes.length === 0 ? (
-          <p className="text-sm text-gray-400 italic">No recent nodes</p>
+          <p className="text-sm text-text-muted italic">No recent nodes</p>
         ) : (
           <ul className="space-y-1">
             {recentNodes.map((node) => (
@@ -88,7 +88,7 @@ function NodeListItem({
     <li
       className={`
         group px-2 py-1.5 rounded cursor-pointer transition-colors
-        ${isSelected ? 'bg-primary-100 text-primary-900' : 'hover:bg-gray-100'}
+        ${isSelected ? 'bg-surface-selected text-text-primary' : 'hover:bg-surface-muted'}
       `}
       onClick={onClick}
     >
@@ -101,7 +101,7 @@ function NodeListItem({
             e.stopPropagation();
             onDelete();
           }}
-          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all"
+          className="opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-status-danger transition-all"
           title="Delete node"
         >
           <svg
@@ -119,13 +119,13 @@ function NodeListItem({
           </svg>
         </button>
       </div>
-      <div className="text-xs text-gray-500 truncate node-content">
+      <div className="text-xs text-text-muted truncate node-content">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
             p: ({ children }) => <span className="inline">{children}</span>,
             code: ({ children }) => (
-              <code className="px-1 py-0.5 rounded bg-gray-200 text-gray-900 font-mono text-xs">
+              <code className="px-1 py-0.5 rounded bg-surface-overlay text-text-secondary font-mono text-xs">
                 {children}
               </code>
             ),

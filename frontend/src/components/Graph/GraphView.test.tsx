@@ -166,13 +166,13 @@ describe('GraphView', () => {
     expect(initialEdgesArg).toHaveLength(2);
     expect(initialEdgesArg.find((e) => e.id === 'edge-explicit')).toMatchObject({
       animated: false,
-      style: { stroke: '#0ea5e9' },
-      markerEnd: { color: '#0ea5e9' },
+      style: { stroke: 'var(--color-accent)' },
+      markerEnd: { color: 'var(--color-accent)' },
     });
     expect(initialEdgesArg.find((e) => e.id === 'edge-implicit')).toMatchObject({
       animated: true,
-      style: { stroke: '#94a3b8' },
-      markerEnd: { color: '#94a3b8' },
+      style: { stroke: 'var(--color-border-strong)' },
+      markerEnd: { color: 'var(--color-border-strong)' },
     });
 
     expect(setGraphNodes).toHaveBeenCalled();

@@ -36,13 +36,13 @@ export function ContextControl({ nodes }: ContextControlProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
           Context Selection
         </h3>
         {selectedRefs.length > 0 && (
           <button
             onClick={clearRefs}
-            className="text-xs text-gray-400 hover:text-gray-600"
+            className="text-xs text-text-muted hover:text-text-secondary transition-colors"
           >
             Clear
           </button>
@@ -55,7 +55,7 @@ export function ContextControl({ nodes }: ContextControlProps) {
         value={searchQuery}
         onChange={(e) => searchState$.query.set(e.target.value)}
         placeholder="Search nodes..."
-        className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+        className="w-full px-2 py-1.5 text-sm border border-border bg-surface-muted text-text-primary rounded-md placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-border-accent"
       />
 
       {/* Use only explicit toggle */}
@@ -64,15 +64,15 @@ export function ContextControl({ nodes }: ContextControlProps) {
           type="checkbox"
           checked={useOnlyExplicit}
           onChange={(e) => uiState$.useOnlyExplicit.set(e.target.checked)}
-          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+          className="rounded border-border bg-surface-muted text-accent focus:ring-accent"
         />
-        <span className="text-sm text-gray-700">Use only selected nodes</span>
+        <span className="text-sm text-text-secondary">Use only selected nodes</span>
       </label>
 
       {/* Node list */}
       <div className="max-h-60 overflow-y-auto space-y-1">
         {filteredNodes.length === 0 ? (
-          <p className="text-sm text-gray-400 italic py-2">
+          <p className="text-sm text-text-muted italic py-2">
             {searchQuery ? 'No matching nodes' : 'No pinned nodes available'}
           </p>
         ) : (
@@ -85,20 +85,20 @@ export function ContextControl({ nodes }: ContextControlProps) {
                 key={node.id}
                 className={`
                   flex items-start gap-2 p-2 rounded cursor-pointer transition-colors
-                  ${isSelected ? 'bg-primary-50' : 'hover:bg-gray-50'}
+                  ${isSelected ? 'bg-surface-selected' : 'hover:bg-surface-muted'}
                 `}
               >
                 <input
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleRef(node.id)}
-                  className="mt-0.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="mt-0.5 rounded border-border bg-surface-muted text-accent focus:ring-accent"
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium text-gray-900 block truncate">
+                  <span className="text-sm font-medium text-text-primary block truncate">
                     {displayName}
                   </span>
-                  <span className="text-xs text-gray-500 block truncate">
+                  <span className="text-xs text-text-muted block truncate">
                     {node.content.slice(0, 60)}
                     {node.content.length > 60 ? '...' : ''}
                   </span>
@@ -111,7 +111,7 @@ export function ContextControl({ nodes }: ContextControlProps) {
 
       {/* Selected count */}
       {selectedRefs.length > 0 && (
-        <p className="text-xs text-primary-600">
+        <p className="text-xs text-text-accent">
           {selectedRefs.length} node{selectedRefs.length > 1 ? 's' : ''}{' '}
           selected
         </p>
