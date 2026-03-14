@@ -14,17 +14,6 @@ Guidelines:
 
 ## Active
 
-### R001 — GSD Project Scaffolding
-- Class: operability
-- Status: active
-- Description: Initialize `.gsd/` directory with PROJECT.md, STATE.md, DECISIONS.md, REQUIREMENTS.md, and M001 context + roadmap reflecting the current state of the Weaver project.
-- Why it matters: Enables structured planning and execution tracking for all future work on Weaver.
-- Source: user
-- Primary owning slice: M001/S01
-- Supporting slices: none
-- Validation: mapped
-- Notes: This requirement is self-referential — completing S01 satisfies it.
-
 ### R002 — Project README
 - Class: launchability
 - Status: active
@@ -49,7 +38,17 @@ Guidelines:
 
 ## Validated
 
-(none yet)
+### R001 — GSD Project Scaffolding
+- Class: operability
+- Status: validated
+- Description: Initialize `.gsd/` directory with PROJECT.md, STATE.md, DECISIONS.md, REQUIREMENTS.md, and M001 context + roadmap reflecting the current state of the Weaver project.
+- Why it matters: Enables structured planning and execution tracking for all future work on Weaver.
+- Source: user
+- Primary owning slice: M001/S01
+- Supporting slices: none
+- Validation: validated
+- Proof: S01 completion — all six GSD files verified present with non-empty, template-conformant content; STATE.md has all template fields; PROJECT.md tech details confirmed against codebase.
+- Notes: This requirement is self-referential — completing S01 satisfies it.
 
 ## Deferred
 
@@ -63,13 +62,13 @@ Guidelines:
 
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
-| R001 | operability | active | M001/S01 | none | mapped |
+| R001 | operability | validated | M001/S01 | none | S01 verified — all six GSD files present and conformant |
 | R002 | launchability | active | M001/S02 | none | mapped |
 | R003 | operability | active | M001/S02 | none | mapped |
 
 ## Coverage Summary
 
-- Active requirements: 3
-- Mapped to slices: 3
-- Validated: 0
+- Active requirements: 2
+- Mapped to slices: 2
+- Validated: 1
 - Unmapped active requirements: 0
