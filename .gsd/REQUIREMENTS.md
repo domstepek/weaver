@@ -14,7 +14,16 @@ Guidelines:
 
 ## Active
 
-(none)
+### R004 — README Mermaid Diagrams
+- Class: launchability
+- Status: active
+- Description: Add Mermaid diagrams to README.md that visually explain system architecture, data model (ER), chat flow (sequence), and auth flow. Diagrams must use valid GitHub-compatible Mermaid syntax and accurately reflect the codebase.
+- Why it matters: Visual diagrams make the architecture immediately understandable to anyone visiting the repo — faster than reading prose descriptions.
+- Source: user
+- Primary owning slice: M002/S01
+- Supporting slices: none
+- Validation: mapped
+- Notes: Diagrams supplement existing README content, not replace it. All content derived from actual code.
 
 ## Validated
 
@@ -69,10 +78,11 @@ Guidelines:
 | R001 | operability | validated | M001/S01 | none | S01 verified — all six GSD files present and conformant |
 | R002 | launchability | validated | M001/S02 | none | README.md exists with 15 sections, content derived from project sources |
 | R003 | operability | validated | M001/S02 | none | AGENTS.md → CLAUDE.md, stale embedding refs fixed |
+| R004 | launchability | active | M002/S01 | none | mapped |
 
 ## Coverage Summary
 
-- Active requirements: 0
-- Mapped to slices: 0
+- Active requirements: 1
+- Mapped to slices: 1
 - Validated: 3
 - Unmapped active requirements: 0
