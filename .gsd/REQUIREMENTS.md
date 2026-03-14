@@ -14,27 +14,7 @@ Guidelines:
 
 ## Active
 
-### R002 — Project README
-- Class: launchability
-- Status: active
-- Description: Write a README.md at the repo root covering project description, architecture (monorepo, backend/frontend split), prerequisites, setup instructions, development commands, and key concepts (knowledge graph, nodes, embeddings, semantic search).
-- Why it matters: Anyone encountering the repo (including future-self) can understand what it is and how to run it without reading source code.
-- Source: user
-- Primary owning slice: M001/S02
-- Supporting slices: none
-- Validation: mapped
-- Notes: Content should be derived from AGENTS.md, FEATURES.md, .env.example, and package.json — not invented.
-
-### R003 — CLAUDE.md Exists
-- Class: operability
-- Status: active
-- Description: Ensure a `CLAUDE.md` file exists at the repo root for Claude Code discovery. AGENTS.md already contains the content (headed `# CLAUDE.md`).
-- Why it matters: Claude Code looks for CLAUDE.md by convention. Without it, project context may not be auto-loaded.
-- Source: user
-- Primary owning slice: M001/S02
-- Supporting slices: none
-- Validation: mapped
-- Notes: Likely a symlink from CLAUDE.md → AGENTS.md, or rename AGENTS.md to CLAUDE.md. Decide during execution.
+(none)
 
 ## Validated
 
@@ -50,6 +30,30 @@ Guidelines:
 - Proof: S01 completion — all six GSD files verified present with non-empty, template-conformant content; STATE.md has all template fields; PROJECT.md tech details confirmed against codebase.
 - Notes: This requirement is self-referential — completing S01 satisfies it.
 
+### R002 — Project README
+- Class: launchability
+- Status: validated
+- Description: Write a README.md at the repo root covering project description, architecture (monorepo, backend/frontend split), prerequisites, setup instructions, development commands, and key concepts (knowledge graph, nodes, embeddings, semantic search).
+- Why it matters: Anyone encountering the repo (including future-self) can understand what it is and how to run it without reading source code.
+- Source: user
+- Primary owning slice: M001/S02
+- Supporting slices: none
+- Validation: validated
+- Proof: S02/T01 — README.md exists with 15 `##` sections covering project description, key concepts, tech stack, prerequisites, setup, dev commands, architecture, API routes, key technical details, and links to further docs. Content derived from PROJECT.md, FEATURES.md, .env.example, docker-compose.yml, package.json.
+- Notes: Content sourced from existing project artifacts; Voyage AI embedding info confirmed correct.
+
+### R003 — CLAUDE.md Exists
+- Class: operability
+- Status: validated
+- Description: Ensure a `CLAUDE.md` file exists at the repo root for Claude Code discovery.
+- Why it matters: Claude Code looks for CLAUDE.md by convention. Without it, project context may not be auto-loaded.
+- Source: user
+- Primary owning slice: M001/S02
+- Supporting slices: none
+- Validation: validated
+- Proof: S02/T01 — AGENTS.md renamed to CLAUDE.md via `git mv`. Heading confirmed `# CLAUDE.md`. Four stale embedding references (1536-d, mock) corrected to Voyage AI `voyage-3.5-lite` 1024-d.
+- Notes: Rename chosen over symlink for simplicity and git history preservation.
+
 ## Deferred
 
 (none)
@@ -63,12 +67,12 @@ Guidelines:
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
 | R001 | operability | validated | M001/S01 | none | S01 verified — all six GSD files present and conformant |
-| R002 | launchability | active | M001/S02 | none | mapped |
-| R003 | operability | active | M001/S02 | none | mapped |
+| R002 | launchability | validated | M001/S02 | none | README.md exists with 15 sections, content derived from project sources |
+| R003 | operability | validated | M001/S02 | none | AGENTS.md → CLAUDE.md, stale embedding refs fixed |
 
 ## Coverage Summary
 
-- Active requirements: 2
-- Mapped to slices: 2
-- Validated: 1
+- Active requirements: 0
+- Mapped to slices: 0
+- Validated: 3
 - Unmapped active requirements: 0

@@ -35,8 +35,7 @@ Weaver is a knowledge graph-based chat application that allows users to save imp
 
 PostgreSQL with pgvector extension for semantic search:
 - Uses HNSW indexing for fast vector similarity search (`vector_cosine_ops`)
-- Embeddings are 1536-dimensional vectors (currently mock implementation in `backend/src/services/ai.ts`)
-- **Note**: Production should replace mock embeddings with OpenAI's `text-embedding-3-small` or Voyage AI
+- Embeddings are 1024-dimensional vectors (Voyage AI `voyage-3.5-lite`) generated in `backend/src/services/ai.ts`
 
 ### Authentication
 
@@ -48,7 +47,7 @@ Google OAuth via `arctic` library:
 ### AI Integration
 
 Backend service (`backend/src/services/ai.ts`) handles:
-- Embedding generation (mock - needs real implementation)
+- Embedding generation via Voyage AI (`voyage-3.5-lite`, 1024-d)
 - Semantic similarity search using pgvector cosine distance
 - Claude API chat with system prompts that include relevant context
 - Node reference parsing from responses using markdown link format: `[NodeName](nodeId)`
@@ -179,7 +178,7 @@ git push -u origin feature-branch-name
 
 ## Important Development Notes
 
-- The embedding implementation is currently a **deterministic mock** - replace with real embeddings for production (OpenAI or Voyage AI)
+- Embeddings use Voyage AI's `voyage-3.5-lite` model (1024 dimensions)
 - Google OAuth requires credentials from Google Cloud Console
 - The frontend expects backend on `localhost:3000` and runs on `localhost:5173`
 - Session cookies require `credentials: true` in CORS config (already configured)

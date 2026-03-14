@@ -44,7 +44,7 @@ This milestone is complete only when all are true:
 - [x] **S01: GSD Project Scaffolding** `risk:low` `depends:[]`
   > After this: `.gsd/` directory is populated with PROJECT.md, STATE.md, DECISIONS.md, REQUIREMENTS.md, and M001 planning artifacts. `/gsd` can route to next work.
 
-- [ ] **S02: Repository Documentation** `risk:low` `depends:[S01]`
+- [x] **S02: Repository Documentation** `risk:low` `depends:[S01]`
   > After this: README.md and CLAUDE.md exist at repo root. GitHub visitors can understand and set up the project.
 
 ## Boundary Map

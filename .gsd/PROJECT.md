@@ -21,7 +21,7 @@ Fully functional application with:
 - Three-panel layout: sidebar (conversations/nodes/context), center graph, right chat
 - Design system foundations with semantic CSS tokens and Storybook docs
 - Test coverage across frontend and backend (Vitest)
-- No README.md — project lacks repository-level documentation
+- README.md and CLAUDE.md at repo root for project documentation and Claude Code discovery
 
 ## Architecture / Key Patterns
 
@@ -39,4 +39,4 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 
 ## Milestone Sequence
 
-- [ ] M001: Repository Documentation — GSD scaffolding, README.md, and CLAUDE.md
+- [x] M001: Repository Documentation — GSD scaffolding, README.md, and CLAUDE.md
