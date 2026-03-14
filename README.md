@@ -112,6 +112,15 @@ pnpm f <command>   # Run command in frontend workspace
 
 ## Architecture
 
+```mermaid
+graph LR
+    Browser["Browser"] --> FE["Frontend<br/>React / Vite :5173"]
+    FE --> BE["Backend<br/>Express :3000"]
+    BE --> DB["PostgreSQL 16<br/>+ pgvector"]
+    BE --> Claude["Claude API<br/>Anthropic"]
+    BE --> Voyage["Voyage AI<br/>Embeddings"]
+```
+
 ```
 weaver/
 ├── backend/           Express.js + Drizzle ORM + PostgreSQL
@@ -136,6 +145,55 @@ weaver/
 - **Conversations** contain ordered message references via **ConversationNodes** join table
 - Messages are stored as nodes — they can be reused across conversations and form graph connections
 
+```mermaid
+erDiagram
+    users {
+        uuid id PK
+        text email
+        text name
+        text google_id UK
+    }
+    sessions {
+        uuid id PK
+        uuid user_id FK
+        timestamp expires_at
+    }
+    nodes {
+        uuid id PK
+        uuid user_id FK
+        text content
+        text name
+        vector embedding "1024-d"
+        boolean is_pinned
+    }
+    node_references {
+        uuid id PK
+        uuid from_node_id FK
+        uuid to_node_id FK
+        reference_type type "explicit | implicit"
+    }
+    conversations {
+        uuid id PK
+        uuid user_id FK
+        text title
+    }
+    conversation_nodes {
+        uuid id PK
+        uuid conversation_id FK
+        uuid node_id FK
+        role role "user | assistant"
+        integer position
+    }
+
+    users ||--o{ sessions : "has"
+    users ||--o{ nodes : "owns"
+    users ||--o{ conversations : "owns"
+    nodes ||--o{ node_references : "from"
+    nodes ||--o{ node_references : "to"
+    conversations ||--o{ conversation_nodes : "contains"
+    nodes ||--o{ conversation_nodes : "referenced in"
+```
+
 ### Chat Flow
 
 1. User sends a message with optionally selected context nodes
@@ -143,6 +201,38 @@ weaver/
 3. Context nodes are formatted into Claude's system prompt with `[NodeName](nodeId)` links
 4. Claude responds, referencing relevant nodes via markdown links
 5. Backend parses response for node references and creates implicit graph edges
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant FE as Frontend
+    participant BE as Backend
+    participant Voyage as Voyage AI
+    participant DB as pgvector
+    participant Claude
+
+    User->>FE: Send message
+    FE->>BE: POST /api/chat (SSE)
+    BE->>BE: Validate input, verify ownership
+    BE->>Voyage: Generate embedding
+    Voyage-->>BE: 1024-d vector
+    BE->>DB: Insert user node
+    BE->>DB: Semantic search (top 5)
+    DB-->>BE: Similar nodes
+    BE->>BE: Format context + history
+    BE->>Claude: Stream chat request
+    loop SSE chunks
+        Claude-->>BE: Text delta
+        BE-->>FE: SSE data event
+    end
+    FE-->>User: Render streamed response
+    BE->>Voyage: Generate AI embedding
+    Voyage-->>BE: 1024-d vector
+    BE->>DB: Save AI node
+    BE->>BE: Parse node references
+    BE->>DB: Create edges + update timestamp
+    BE-->>FE: SSE done event with metadata
+```
 
 ### API Routes
 
@@ -152,6 +242,29 @@ weaver/
 | `/api/nodes` | CRUD for knowledge graph nodes |
 | `/api/conversations` | CRUD for chat conversations |
 | `/api/chat` | Send message → AI response with context |
+
+### Auth Flow
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant BE as Backend
+    participant Google
+
+    Browser->>BE: GET /auth/google
+    BE->>BE: Generate state + PKCE verifier
+    BE->>Browser: Set OAuth cookies, redirect
+    Browser->>Google: Authorization request
+    Google->>Browser: Consent screen
+    Browser->>BE: GET /auth/google/callback?code=...
+    BE->>Google: Exchange code for tokens
+    Google-->>BE: Access token
+    BE->>Google: Fetch user info
+    Google-->>BE: User profile
+    BE->>BE: Upsert user in DB
+    BE->>BE: Create session (30-day expiry)
+    BE->>Browser: Set session cookie, redirect to frontend
+```
 
 ## Key Technical Details
 

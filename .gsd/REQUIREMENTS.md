@@ -14,16 +14,7 @@ Guidelines:
 
 ## Active
 
-### R004 — README Mermaid Diagrams
-- Class: launchability
-- Status: active
-- Description: Add Mermaid diagrams to README.md that visually explain system architecture, data model (ER), chat flow (sequence), and auth flow. Diagrams must use valid GitHub-compatible Mermaid syntax and accurately reflect the codebase.
-- Why it matters: Visual diagrams make the architecture immediately understandable to anyone visiting the repo — faster than reading prose descriptions.
-- Source: user
-- Primary owning slice: M002/S01
-- Supporting slices: none
-- Validation: mapped
-- Notes: Diagrams supplement existing README content, not replace it. All content derived from actual code.
+(none)
 
 ## Validated
 
@@ -63,6 +54,18 @@ Guidelines:
 - Proof: S02/T01 — AGENTS.md renamed to CLAUDE.md via `git mv`. Heading confirmed `# CLAUDE.md`. Four stale embedding references (1536-d, mock) corrected to Voyage AI `voyage-3.5-lite` 1024-d.
 - Notes: Rename chosen over symlink for simplicity and git history preservation.
 
+### R004 — README Mermaid Diagrams
+- Class: launchability
+- Status: validated
+- Description: Add Mermaid diagrams to README.md that visually explain system architecture, data model (ER), chat flow (sequence), and auth flow. Diagrams must use valid GitHub-compatible Mermaid syntax and accurately reflect the codebase.
+- Why it matters: Visual diagrams make the architecture immediately understandable to anyone visiting the repo — faster than reading prose descriptions.
+- Source: user
+- Primary owning slice: M002/S01
+- Supporting slices: none
+- Validation: validated
+- Proof: M002/S01 — 4 Mermaid blocks in README.md (architecture flowchart, ER diagram, chat flow sequence, auth flow sequence). All parse via mermaid-cli 11.4.2 with exit 0. Zero existing prose lines deleted. Content derived from schema.ts, chat.ts, auth.ts, ai.ts.
+- Notes: Diagrams supplement existing README content. mermaid-cli 11.12.0 has a CLI bug — pin to 11.4.2 for validation.
+
 ## Deferred
 
 (none)
@@ -78,11 +81,11 @@ Guidelines:
 | R001 | operability | validated | M001/S01 | none | S01 verified — all six GSD files present and conformant |
 | R002 | launchability | validated | M001/S02 | none | README.md exists with 15 sections, content derived from project sources |
 | R003 | operability | validated | M001/S02 | none | AGENTS.md → CLAUDE.md, stale embedding refs fixed |
-| R004 | launchability | active | M002/S01 | none | mapped |
+| R004 | launchability | validated | M002/S01 | none | 4 Mermaid blocks, mermaid-cli validates, 0 prose deleted |
 
 ## Coverage Summary
 
-- Active requirements: 1
-- Mapped to slices: 1
-- Validated: 3
+- Active requirements: 0
+- Mapped to slices: 0
+- Validated: 4
 - Unmapped active requirements: 0

@@ -8,3 +8,4 @@
 |---|------|-------|----------|--------|-----------|------------|
 | D001 | M001 | convention | GSD methodology | Manual bootstrap via files on disk | Project is small, full GSD automation not needed yet | Yes — if project grows |
 | D002 | M001/S02 | convention | AGENTS.md → CLAUDE.md | `git mv` rename, not symlink | Preserves git history, simpler than symlink, no cross-platform issues | No |
+| D003 | M002/S01 | tooling | mermaid-cli version pin | Pin to 11.4.2 for diagram validation | 11.12.0 has broken CLI argument parsing (`error: too many arguments`). 11.4.2 syntax validation is equivalent. | Yes — when upstream fixes the bug |

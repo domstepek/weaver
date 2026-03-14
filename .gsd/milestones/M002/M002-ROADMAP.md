@@ -43,7 +43,7 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: README Mermaid Diagrams** `risk:low` `depends:[]`
+- [x] **S01: README Mermaid Diagrams** `risk:low` `depends:[]`
   > After this: README.md renders 3-4 Mermaid diagrams on GitHub showing system architecture, entity relationships, chat flow sequence, and auth flow.
 
 ## Boundary Map
